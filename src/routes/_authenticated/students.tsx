@@ -72,8 +72,24 @@ function StudentsPage() {
     setForm((f) => ({ ...f, stop_id, total_fee: s ? String(s.fare) : f.total_fee }));
   };
 
+  const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] ?? null;
+    if (f && f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
+    setPhotoFile(f);
+    setPhotoPreview(f ? URL.createObjectURL(f) : null);
+  };
+
   const submit = async () => {
     if (!form.roll_no || !form.name) return toast.error("Roll no and name required");
+    setUploading(true);
+    let photo_url: string | null = null;
+    if (photoFile) {
+      const ext = photoFile.name.split(".").pop() || "jpg";
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("student-photos").upload(path, photoFile, { contentType: photoFile.type });
+      if (upErr) { setUploading(false); return toast.error(upErr.message); }
+      photo_url = path;
+    }
     const { error } = await supabase.from("students").insert({
       roll_no: form.roll_no,
       name: form.name,
@@ -84,11 +100,14 @@ function StudentsPage() {
       stop_id: form.stop_id || null,
       academic_year: form.academic_year,
       total_fee: Number(form.total_fee) || 0,
+      photo_url,
     });
+    setUploading(false);
     if (error) return toast.error(error.message);
     toast.success("Student added");
     setOpen(false);
     setForm({ roll_no: "", name: "", department: "", year: "", phone: "", parent_phone: "", stop_id: "", academic_year: form.academic_year, total_fee: "0" });
+    setPhotoFile(null); setPhotoPreview(null);
     load();
   };
 

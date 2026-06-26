@@ -30,6 +30,8 @@ function StudentDetail() {
   const [payments, setPayments] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ amount: "", paid_on: new Date().toISOString().slice(0, 10), mode: "Cash", reference: "", remarks: "" });
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
 
   const load = useCallback(async () => {
     const { data: s } = await supabase
@@ -38,11 +40,36 @@ function StudentDetail() {
       .eq("id", id)
       .single();
     setStudent(s);
+    if (s?.photo_url) {
+      const { data: signed } = await supabase.storage.from("student-photos").createSignedUrl(s.photo_url, 3600);
+      setPhotoUrl(signed?.signedUrl ?? null);
+    } else {
+      setPhotoUrl(null);
+    }
     const { data: p } = await supabase.from("payments").select("*").eq("student_id", id).order("paid_on", { ascending: false });
     setPayments(p ?? []);
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  const onPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
+    setUploadingPhoto(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
+    if (upErr) { setUploadingPhoto(false); return toast.error(upErr.message); }
+    if (student?.photo_url) {
+      await supabase.storage.from("student-photos").remove([student.photo_url]);
+    }
+    const { error } = await supabase.from("students").update({ photo_url: path }).eq("id", id);
+    setUploadingPhoto(false);
+    if (error) return toast.error(error.message);
+    toast.success("Photo updated");
+    load();
+  };
 
   if (!student) return <div className="text-muted-foreground">Loading…</div>;
 

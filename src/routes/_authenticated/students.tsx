@@ -35,6 +35,9 @@ function StudentsPage() {
     roll_no: "", name: "", department: "", year: "", phone: "", parent_phone: "",
     stop_id: "", academic_year: new Date().getFullYear() + "-" + (new Date().getFullYear() + 1), total_fee: "0",
   });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const load = async () => {
     const { data: studentsData } = await supabase

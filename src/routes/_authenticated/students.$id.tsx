@@ -144,9 +144,22 @@ function StudentDetail() {
       </div>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{student.name}</h1>
-          <p className="text-sm text-muted-foreground">{student.roll_no} · {student.department ?? "—"} · {student.year ?? "—"} · AY {student.academic_year}</p>
+        <div className="flex items-start gap-4">
+          <label className="relative group cursor-pointer">
+            {photoUrl ? (
+              <img src={photoUrl} alt={student.name} className="h-20 w-20 rounded-lg object-cover border" />
+            ) : (
+              <div className="h-20 w-20 rounded-lg border bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
+            )}
+            <div className="absolute inset-0 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition">
+              {uploadingPhoto ? "Uploading…" : "Change"}
+            </div>
+            <input type="file" accept="image/*" className="hidden" onChange={onPhotoUpload} disabled={uploadingPhoto} />
+          </label>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">{student.name}</h1>
+            <p className="text-sm text-muted-foreground">{student.roll_no} · {student.department ?? "—"} · {student.year ?? "—"} · AY {student.academic_year}</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Dialog open={open} onOpenChange={setOpen}>

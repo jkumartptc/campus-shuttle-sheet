@@ -303,6 +303,7 @@ export type Database = {
           name: string
           parent_phone: string | null
           phone: string | null
+          photo_url: string | null
           roll_no: string
           stop_id: string | null
           total_fee: number
@@ -317,6 +318,7 @@ export type Database = {
           name: string
           parent_phone?: string | null
           phone?: string | null
+          photo_url?: string | null
           roll_no: string
           stop_id?: string | null
           total_fee?: number
@@ -331,6 +333,7 @@ export type Database = {
           name?: string
           parent_phone?: string | null
           phone?: string | null
+          photo_url?: string | null
           roll_no?: string
           stop_id?: string | null
           total_fee?: number

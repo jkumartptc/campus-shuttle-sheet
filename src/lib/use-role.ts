@@ -1,0 +1,35 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+export type AppRole = "admin" | "staff";
+
+export function useCurrentUser() {
+  const [user, setUser] = useState<{ id: string; email: string | null } | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user ? { id: data.user.id, email: data.user.email ?? null } : null);
+      setLoading(false);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ? { id: session.user.id, email: session.user.email ?? null } : null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+  return { user, loading };
+}
+
+export function useIsAdmin(userId: string | undefined) {
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!userId) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [userId]);
+  return isAdmin;
+}

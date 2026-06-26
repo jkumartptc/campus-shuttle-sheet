@@ -143,8 +143,19 @@ function StudentsPage() {
               </Field>
               <Field label="Academic Year"><Input value={form.academic_year} onChange={(e) => setForm({ ...form, academic_year: e.target.value })} /></Field>
               <Field label="Total Fee (₹)"><Input type="number" value={form.total_fee} onChange={(e) => setForm({ ...form, total_fee: e.target.value })} /></Field>
+              <div className="col-span-2 space-y-1">
+                <Label className="text-xs">Photo</Label>
+                <div className="flex items-center gap-3">
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="preview" className="h-16 w-16 rounded-md object-cover border" />
+                  ) : (
+                    <div className="h-16 w-16 rounded-md border bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
+                  )}
+                  <Input type="file" accept="image/*" onChange={onPhotoChange} />
+                </div>
+              </div>
             </div>
-            <DialogFooter><Button onClick={submit}>Save</Button></DialogFooter>
+            <DialogFooter><Button onClick={submit} disabled={uploading}>{uploading ? "Saving…" : "Save"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </div>

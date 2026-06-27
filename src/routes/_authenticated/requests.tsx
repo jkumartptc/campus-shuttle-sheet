@@ -46,6 +46,37 @@ function RequestsPage() {
     if (typeof window !== "undefined") setShareUrl(`${window.location.origin}/request`);
   }, []);
 
+  const approve = async (r: Req) => {
+    // Check if student already exists by roll_no
+    const { data: existing } = await supabase
+      .from("students").select("id").eq("roll_no", r.register_no).maybeSingle();
+    if (existing) {
+      toast.error("A student with this register number already exists");
+      return;
+    }
+    // Try to match a stop by name (case-insensitive)
+    const { data: stop } = await supabase
+      .from("stops").select("id, fare").ilike("name", r.bus_stop_name).maybeSingle();
+
+    const { error: insErr } = await supabase.from("students").insert({
+      name: r.name,
+      roll_no: r.register_no,
+      department: r.department,
+      year: r.year,
+      phone: r.mobile,
+      parent_phone: r.father_mobile,
+      academic_year: currentAcademicYear(),
+      stop_id: stop?.id ?? null,
+      total_fee: Number(stop?.fare ?? r.bus_fee ?? 0),
+    });
+    if (insErr) return toast.error(insErr.message);
+
+    const { error } = await supabase.from("transport_requests").update({ status: "approved" }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success("Approved & added to Students");
+    load();
+  };
+
   const setStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("transport_requests").update({ status }).eq("id", id);
     if (error) return toast.error(error.message);

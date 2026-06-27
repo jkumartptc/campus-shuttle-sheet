@@ -18,7 +18,14 @@ export const Route = createFileRoute("/_authenticated/requests")({
 type Req = {
   id: string; name: string; register_no: string; department: string; year: string;
   mobile: string; father_name: string; father_mobile: string; bus_stop_name: string;
+  bus_fee: number | null;
   status: string; remarks: string | null; created_at: string;
+};
+
+const currentAcademicYear = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  return d.getMonth() >= 5 ? `${y}-${String(y + 1).slice(2)}` : `${y - 1}-${String(y).slice(2)}`;
 };
 
 function RequestsPage() {

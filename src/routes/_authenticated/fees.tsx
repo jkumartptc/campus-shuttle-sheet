@@ -17,7 +17,12 @@ export const Route = createFileRoute("/_authenticated/fees")({
   component: FeesPage,
 });
 
-type Student = { id: string; roll_no: string; name: string; total_fee: number };
+type Student = {
+  id: string; roll_no: string; name: string; total_fee: number;
+  department: string | null; year: string | null; phone: string | null;
+  parent_phone: string | null; academic_year: string;
+  stops: { name: string; routes: { name: string } | null } | null;
+};
 type Payment = {
   id: string; amount: number; paid_on: string; mode: string; receipt_no: string;
   reference: string | null; remarks: string | null;
@@ -56,10 +61,12 @@ function FeesPage() {
     if (!rn) { setStudent(null); setLookupErr(null); setPaidSoFar(0); return; }
     const t = setTimeout(async () => {
       const { data, error } = await supabase
-        .from("students").select("id, roll_no, name, total_fee").eq("roll_no", rn).maybeSingle();
+        .from("students")
+        .select("id, roll_no, name, total_fee, department, year, phone, parent_phone, academic_year, stops(name, routes(name))")
+        .eq("roll_no", rn).maybeSingle();
       if (error) { setLookupErr(error.message); setStudent(null); return; }
       if (!data) { setStudent(null); setLookupErr("No student with this register number"); setPaidSoFar(0); return; }
-      setStudent(data as Student); setLookupErr(null);
+      setStudent(data as any); setLookupErr(null);
       const { data: pays } = await supabase.from("payments").select("amount").eq("student_id", data.id);
       const sum = (pays ?? []).reduce((s: number, r: any) => s + Number(r.amount || 0), 0);
       setPaidSoFar(sum);
@@ -125,40 +132,70 @@ function FeesPage() {
 
       <Card>
         <CardHeader><CardTitle className="text-base flex items-center gap-2"><Receipt className="h-4 w-4" /> New payment</CardTitle></CardHeader>
-        <CardContent className="grid gap-3 md:grid-cols-3">
+        <CardContent className="space-y-4">
           <Field label="Register Number *">
-            <Input value={form.register_no} onChange={(e) => setForm({ ...form, register_no: e.target.value })} placeholder="e.g. 22CS001" />
+            <Input
+              value={form.register_no}
+              onChange={(e) => setForm({ ...form, register_no: e.target.value })}
+              placeholder="e.g. 22CS001"
+              className="md:max-w-xs"
+            />
             {lookupErr && <p className="mt-1 text-xs text-destructive">{lookupErr}</p>}
-            {student && (
-              <p className="mt-1 text-xs text-muted-foreground">
-                {student.name} · Total {inr(student.total_fee)} · Paid {inr(paidSoFar)} · <span className="font-medium text-foreground">Balance {inr(balance)}</span>
-              </p>
-            )}
           </Field>
-          <Field label="Receipt Number *">
-            <Input value={form.receipt_no} onChange={(e) => setForm({ ...form, receipt_no: e.target.value })} placeholder="e.g. R-2026-0001" />
-          </Field>
-          <Field label="Amount Paid (₹) *">
-            <Input type="number" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
-          </Field>
-          <Field label="Date *">
-            <Input type="date" value={form.paid_on} onChange={(e) => setForm({ ...form, paid_on: e.target.value })} />
-          </Field>
-          <Field label="Mode *">
-            <Select value={form.mode} onValueChange={(v) => setForm({ ...form, mode: v })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cash">Cash</SelectItem>
-                <SelectItem value="online">Online</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
-          <Field label="Reference (txn id / cheque)">
-            <Input value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
-          </Field>
-          <div className="md:col-span-3 flex justify-end">
-            <Button onClick={submit} disabled={saving || !student}>{saving ? "Saving…" : "Record Payment"}</Button>
-          </div>
+
+          {student && (
+            <div className="rounded-lg border bg-muted/40 p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <div className="text-lg font-semibold">{student.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {student.roll_no} · {student.department ?? "—"} {student.year ? `· Year ${student.year}` : ""} · AY {student.academic_year}
+                  </div>
+                </div>
+                <Badge variant={balance <= 0 && student.total_fee > 0 ? "default" : paidSoFar > 0 ? "secondary" : "destructive"}>
+                  {balance <= 0 && student.total_fee > 0 ? "Paid" : paidSoFar > 0 ? "Partial" : "Pending"}
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 gap-3 text-xs md:grid-cols-5">
+                <Info label="Route">{student.stops?.routes?.name ?? "—"}</Info>
+                <Info label="Bus Stop">{student.stops?.name ?? "—"}</Info>
+                <Info label="Mobile">{student.phone ?? "—"}</Info>
+                <Info label="Parent">{student.parent_phone ?? "—"}</Info>
+                <Info label="Total Fee">{inr(student.total_fee)}</Info>
+                <Info label="Paid So Far">{inr(paidSoFar)}</Info>
+                <Info label="Balance" highlight>{inr(balance)}</Info>
+              </div>
+            </div>
+          )}
+
+          {student && (
+            <div className="grid gap-3 md:grid-cols-3">
+              <Field label="Receipt Number *">
+                <Input value={form.receipt_no} onChange={(e) => setForm({ ...form, receipt_no: e.target.value })} placeholder="e.g. R-2026-0001" />
+              </Field>
+              <Field label="Amount Paid (₹) *">
+                <Input type="number" min="0" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
+              </Field>
+              <Field label="Date *">
+                <Input type="date" value={form.paid_on} onChange={(e) => setForm({ ...form, paid_on: e.target.value })} />
+              </Field>
+              <Field label="Mode *">
+                <Select value={form.mode} onValueChange={(v) => setForm({ ...form, mode: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="online">Online</SelectItem>
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field label="Reference (txn id / cheque)">
+                <Input value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} />
+              </Field>
+              <div className="md:col-span-3 flex justify-end">
+                <Button onClick={submit} disabled={saving}>{saving ? "Saving…" : "Record Payment"}</Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -225,5 +262,14 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
         <div className="text-xl font-semibold">{value}</div>
       </CardContent>
     </Card>
+  );
+}
+
+function Info({ label, children, highlight }: { label: string; children: React.ReactNode; highlight?: boolean }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={highlight ? "font-semibold text-foreground" : "text-foreground"}>{children}</div>
+    </div>
   );
 }

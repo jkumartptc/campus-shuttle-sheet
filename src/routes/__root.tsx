@@ -89,6 +89,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "College transport administration — students, fees, routes, and buses" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Transport Admin" },
+      { name: "twitter:description", content: "College transport administration — students, fees, routes, and buses" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/872b4c28-a1d4-4239-9626-b3f5be210836/id-preview-8f8fd617--28593838-a78f-43c9-84c3-24295f65d2a1.lovable.app-1782581197262.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/872b4c28-a1d4-4239-9626-b3f5be210836/id-preview-8f8fd617--28593838-a78f-43c9-84c3-24295f65d2a1.lovable.app-1782581197262.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

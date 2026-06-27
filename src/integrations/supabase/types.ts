@@ -350,6 +350,54 @@ export type Database = {
           },
         ]
       }
+      transport_requests: {
+        Row: {
+          bus_stop_name: string
+          created_at: string
+          department: string
+          father_mobile: string
+          father_name: string
+          id: string
+          mobile: string
+          name: string
+          register_no: string
+          remarks: string | null
+          status: string
+          updated_at: string
+          year: string
+        }
+        Insert: {
+          bus_stop_name: string
+          created_at?: string
+          department: string
+          father_mobile: string
+          father_name: string
+          id?: string
+          mobile: string
+          name: string
+          register_no: string
+          remarks?: string | null
+          status?: string
+          updated_at?: string
+          year: string
+        }
+        Update: {
+          bus_stop_name?: string
+          created_at?: string
+          department?: string
+          father_mobile?: string
+          father_name?: string
+          id?: string
+          mobile?: string
+          name?: string
+          register_no?: string
+          remarks?: string | null
+          status?: string
+          updated_at?: string
+          year?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

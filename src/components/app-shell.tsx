@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   LogOut,
   Menu,
+  Inbox,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/students", label: "Students", icon: Users },
+  { to: "/requests", label: "Requests", icon: Inbox },
   { to: "/routes", label: "Routes & Stops", icon: MapPin },
   { to: "/buses", label: "Buses", icon: Bus },
   { to: "/staff", label: "Staff", icon: ShieldCheck },

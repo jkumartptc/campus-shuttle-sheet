@@ -352,6 +352,7 @@ export type Database = {
       }
       transport_requests: {
         Row: {
+          bus_fee: number
           bus_stop_name: string
           created_at: string
           department: string
@@ -367,6 +368,7 @@ export type Database = {
           year: string
         }
         Insert: {
+          bus_fee?: number
           bus_stop_name: string
           created_at?: string
           department: string
@@ -382,6 +384,7 @@ export type Database = {
           year: string
         }
         Update: {
+          bus_fee?: number
           bus_stop_name?: string
           created_at?: string
           department?: string

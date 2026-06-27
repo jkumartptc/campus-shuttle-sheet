@@ -264,3 +264,12 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
     </Card>
   );
 }
+
+function Info({ label, children, highlight }: { label: string; children: React.ReactNode; highlight?: boolean }) {
+  return (
+    <div>
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={highlight ? "font-semibold text-foreground" : "text-foreground"}>{children}</div>
+    </div>
+  );
+}

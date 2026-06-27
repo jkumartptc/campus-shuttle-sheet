@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { CheckCircle2, Bus } from "lucide-react";
+import { inr } from "@/lib/format";
 
 export const Route = createFileRoute("/request")({
   head: () => ({
@@ -21,6 +22,21 @@ export const Route = createFileRoute("/request")({
   component: RequestPage,
 });
 
+const BUS_STOPS: { name: string; fee: number }[] = [
+  { name: "Mettur", fee: 29500 },
+  { name: "Mettur RS, Karumalaikudal", fee: 29000 },
+  { name: "Sampalli, Ram Nagar", fee: 25000 },
+  { name: "Kunjandiyur", fee: 23500 },
+  { name: "Potaneri", fee: 20500 },
+  { name: "Mecheri", fee: 18000 },
+  { name: "Kamaneri", fee: 16500 },
+  { name: "Panchakalipatti", fee: 15500 },
+  { name: "Pachampatti", fee: 14500 },
+  { name: "Omalur, Karuppur (Min)", fee: 13500 },
+];
+
+const YEARS = ["I", "II", "III"];
+
 const initial = {
   name: "", register_no: "", department: "", year: "",
   mobile: "", father_name: "", father_mobile: "", bus_stop_name: "",
@@ -31,8 +47,10 @@ function RequestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
 
-  const set = (k: keyof typeof initial) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+  const set = (k: keyof typeof initial) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const selectedFee = BUS_STOPS.find((s) => s.name === form.bus_stop_name)?.fee ?? 0;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +69,7 @@ function RequestPage() {
       father_name: form.father_name.trim(),
       father_mobile: form.father_mobile.trim(),
       bus_stop_name: form.bus_stop_name.trim(),
+      bus_fee: selectedFee,
     });
     setSubmitting(false);
     if (error) return toast.error(error.message);
@@ -90,11 +109,35 @@ function RequestPage() {
             <Field label="Student Name *"><Input value={form.name} onChange={set("name")} maxLength={100} /></Field>
             <Field label="Register Number *"><Input value={form.register_no} onChange={set("register_no")} maxLength={50} /></Field>
             <Field label="Department *"><Input value={form.department} onChange={set("department")} maxLength={100} /></Field>
-            <Field label="Year of Study *"><Input value={form.year} onChange={set("year")} placeholder="I / II / III / IV" maxLength={20} /></Field>
+            <Field label="Year of Study *">
+              <Select value={form.year} onValueChange={(v) => setForm((f) => ({ ...f, year: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select year" /></SelectTrigger>
+                <SelectContent>
+                  {YEARS.map((y) => <SelectItem key={y} value={y}>{y} Year</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </Field>
             <Field label="Mobile Number *"><Input value={form.mobile} onChange={set("mobile")} inputMode="numeric" maxLength={10} placeholder="10-digit mobile" /></Field>
             <Field label="Father's Name *"><Input value={form.father_name} onChange={set("father_name")} maxLength={100} /></Field>
             <Field label="Father's Mobile *"><Input value={form.father_mobile} onChange={set("father_mobile")} inputMode="numeric" maxLength={10} placeholder="10-digit mobile" /></Field>
-            <Field label="Bus Stop Name *"><Input value={form.bus_stop_name} onChange={set("bus_stop_name")} maxLength={100} placeholder="Nearest bus stop" /></Field>
+            <Field label="Bus Stop *">
+              <Select value={form.bus_stop_name} onValueChange={(v) => setForm((f) => ({ ...f, bus_stop_name: v }))}>
+                <SelectTrigger><SelectValue placeholder="Select bus stop" /></SelectTrigger>
+                <SelectContent>
+                  {BUS_STOPS.map((s) => (
+                    <SelectItem key={s.name} value={s.name}>
+                      {s.name} — {inr(s.fee)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            {form.bus_stop_name && (
+              <div className="sm:col-span-2 rounded-md border bg-primary/5 px-4 py-3 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Annual Bus Fee</span>
+                <span className="text-lg font-bold text-primary">{inr(selectedFee)}</span>
+              </div>
+            )}
             <div className="sm:col-span-2 pt-2">
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? "Submitting…" : "Submit Request"}

@@ -1,0 +1,1 @@
+ALTER TABLE public.transport_requests ADD COLUMN IF NOT EXISTS bus_fee numeric NOT NULL DEFAULT 0;

@@ -18,7 +18,14 @@ export const Route = createFileRoute("/_authenticated/requests")({
 type Req = {
   id: string; name: string; register_no: string; department: string; year: string;
   mobile: string; father_name: string; father_mobile: string; bus_stop_name: string;
+  bus_fee: number | null;
   status: string; remarks: string | null; created_at: string;
+};
+
+const currentAcademicYear = () => {
+  const d = new Date();
+  const y = d.getFullYear();
+  return d.getMonth() >= 5 ? `${y}-${String(y + 1).slice(2)}` : `${y - 1}-${String(y).slice(2)}`;
 };
 
 function RequestsPage() {
@@ -38,6 +45,37 @@ function RequestsPage() {
     load();
     if (typeof window !== "undefined") setShareUrl(`${window.location.origin}/request`);
   }, []);
+
+  const approve = async (r: Req) => {
+    // Check if student already exists by roll_no
+    const { data: existing } = await supabase
+      .from("students").select("id").eq("roll_no", r.register_no).maybeSingle();
+    if (existing) {
+      toast.error("A student with this register number already exists");
+      return;
+    }
+    // Try to match a stop by name (case-insensitive)
+    const { data: stop } = await supabase
+      .from("stops").select("id, fare").ilike("name", r.bus_stop_name).maybeSingle();
+
+    const { error: insErr } = await supabase.from("students").insert({
+      name: r.name,
+      roll_no: r.register_no,
+      department: r.department,
+      year: r.year,
+      phone: r.mobile,
+      parent_phone: r.father_mobile,
+      academic_year: currentAcademicYear(),
+      stop_id: stop?.id ?? null,
+      total_fee: Number(stop?.fare ?? r.bus_fee ?? 0),
+    });
+    if (insErr) return toast.error(insErr.message);
+
+    const { error } = await supabase.from("transport_requests").update({ status: "approved" }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success("Approved & added to Students");
+    load();
+  };
 
   const setStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("transport_requests").update({ status }).eq("id", id);
@@ -131,7 +169,7 @@ function RequestsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-1 whitespace-nowrap">
-                    {r.status !== "approved" && <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "approved")}>Approve</Button>}
+                    {r.status !== "approved" && <Button size="sm" variant="outline" onClick={() => approve(r)}>Approve</Button>}
                     {r.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "rejected")}>Reject</Button>}
                     <Button size="sm" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="h-4 w-4" /></Button>
                   </TableCell>

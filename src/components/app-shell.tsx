@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   Inbox,
+  Receipt,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/students", label: "Students", icon: Users },
+  { to: "/fees", label: "Fees Collection", icon: Receipt },
   { to: "/requests", label: "Requests", icon: Inbox },
   { to: "/routes", label: "Routes & Stops", icon: MapPin },
   { to: "/buses", label: "Buses", icon: Bus },

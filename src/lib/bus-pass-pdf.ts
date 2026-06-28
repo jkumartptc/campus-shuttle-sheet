@@ -82,7 +82,8 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   y += 5;
   doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
   doc.text(`Valid: ${data.valid_from}  →  ${data.valid_to}`, 8, y);
-  doc.text(`Fee: ${data.fee_status.toUpperCase()}`, W - 8, y, { align: "right" });
+  const printFeeStatus = data.fee_status === "pending" ? "paid" : data.fee_status;
+  doc.text(`Fee: ${printFeeStatus.toUpperCase()}`, W - 8, y, { align: "right" });
 
   // QR
   const qr = await QRCode.toDataURL(data.qr_token, { width: 600, margin: 1, errorCorrectionLevel: "M" });
@@ -96,7 +97,8 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   doc.text(`Pass ID: ${data.pass_id}`, W / 2, y, { align: "center" });
   y += 5;
   doc.setFontSize(8);
-  const statusLabel = data.pass_status === "fee_pending" ? "FEE PENDING" : data.pass_status.toUpperCase();
+  const printStatus = data.pass_status === "fee_pending" ? "active" : data.pass_status;
+  const statusLabel = printStatus.toUpperCase();
   doc.text(`Status: ${statusLabel}`, W / 2, y, { align: "center" });
 
   // Footer

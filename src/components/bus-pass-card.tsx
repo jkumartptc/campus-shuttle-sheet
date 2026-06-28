@@ -110,7 +110,7 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
 
           {/* QR + status */}
           <div className="col-span-3 flex flex-col items-center justify-start">
-            <span className={`mb-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${statusBadgeClass(data.pass_status)}`}>
+            <span className={`mb-2 text-[10px] font-semibold px-2 py-0.5 rounded border ${statusBadgeClass(printStatus)}`}>
               {statusLabel}
             </span>
             {qrUrl ? (
@@ -138,7 +138,7 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
             <CheckCircle2 className="h-4 w-4 text-emerald-700" />
             <div>
               <div className="text-[10px] uppercase tracking-wide text-slate-500">Fee Status</div>
-              <div className="font-semibold uppercase text-emerald-700">{data.fee_status}</div>
+              <div className="font-semibold uppercase text-emerald-700">{printFeeStatus}</div>
             </div>
           </div>
         </div>

@@ -179,6 +179,14 @@ function StudentsPage() {
 
   return (
     <div className="space-y-6">
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={onCapturePhoto}
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Students</h1>

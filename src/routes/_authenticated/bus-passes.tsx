@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Printer, RefreshCcw, Ban, FileSpreadsheet, FileDown, Eye } from "lucide-react";
+import { Download, Printer, Ban, FileSpreadsheet, FileDown, Eye } from "lucide-react";
 import { BusPassCard, statusBadgeClass, fmtAcademicYear, type BusPassData } from "@/components/bus-pass-card";
 import { generateBusPassPdf } from "@/lib/bus-pass-pdf";
 import * as XLSX from "xlsx";

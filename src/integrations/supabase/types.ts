@@ -614,6 +614,10 @@ export type Database = {
           valid_to: string
         }[]
       }
+      sync_bus_pass_fee_status: {
+        Args: { p_student_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "staff" | "driver"

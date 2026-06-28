@@ -1,6 +1,7 @@
 import { useEffect, useState, forwardRef } from "react";
 import QRCode from "qrcode";
-import { Bus } from "lucide-react";
+import { collegeLogoUrl } from "@/components/college-logo";
+
 
 export type BusPassData = {
   pass_id: string;
@@ -45,9 +46,10 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
       <div ref={ref} className="bg-white text-slate-900 border-2 border-primary/30 rounded-xl overflow-hidden mx-auto shadow-lg" style={{ width: 420 }}>
         {/* Header */}
         <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-4 py-3 flex items-center gap-3">
-          <div className="h-12 w-12 rounded-full bg-white text-primary flex items-center justify-center font-bold text-lg shrink-0">
-            <Bus className="h-6 w-6" />
+          <div className="h-12 w-12 rounded-full bg-white p-1 flex items-center justify-center shrink-0">
+            <img src={collegeLogoUrl} alt="College" className="h-full w-full object-contain" crossOrigin="anonymous" />
           </div>
+
           <div className="flex-1 text-center">
             <div className="text-[15px] font-bold leading-tight">THIAGARAJAR POLYTECHNIC COLLEGE</div>
             <div className="text-[11px] opacity-90">Salem – 636005</div>

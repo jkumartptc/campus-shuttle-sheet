@@ -348,6 +348,14 @@ function StudentsPage() {
                         >
                           <Camera className="h-4 w-4" />
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => downloadStudent(r)}
+                          title="Download PDF"
+                        >
+                          <FileDown className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

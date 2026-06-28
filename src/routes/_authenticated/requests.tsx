@@ -46,6 +46,9 @@ function RequestsPage() {
     if (typeof window !== "undefined") setShareUrl(`${window.location.origin}/request`);
   }, []);
 
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingStudentId = useRef<string | null>(null);
+
   const approve = async (r: Req) => {
     // Check if student already exists by roll_no
     const { data: existing } = await supabase
@@ -58,7 +61,7 @@ function RequestsPage() {
     const { data: stop } = await supabase
       .from("stops").select("id, fare").ilike("name", r.bus_stop_name).maybeSingle();
 
-    const { error: insErr } = await supabase.from("students").insert({
+    const { data: inserted, error: insErr } = await supabase.from("students").insert({
       name: r.name,
       roll_no: r.register_no,
       department: r.department,
@@ -68,13 +71,44 @@ function RequestsPage() {
       academic_year: currentAcademicYear(),
       stop_id: stop?.id ?? null,
       total_fee: Number(stop?.fare ?? r.bus_fee ?? 0),
-    });
-    if (insErr) return toast.error(insErr.message);
+    }).select("id").single();
+    if (insErr || !inserted) return toast.error(insErr?.message ?? "Failed to add student");
 
     const { error } = await supabase.from("transport_requests").update({ status: "approved" }).eq("id", r.id);
     if (error) return toast.error(error.message);
     toast.success("Approved & added to Students");
     load();
+
+    // Prompt to capture photo for the newly added student
+    if (confirm(`Take a photo for ${r.name} now?`)) {
+      pendingStudentId.current = inserted.id;
+      photoInputRef.current?.click();
+    }
+  };
+
+  const capturePhoto = async (studentId: string, file: File) => {
+    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
+    if (upErr) return toast.error(upErr.message);
+    const { error } = await supabase.from("students").update({ photo_url: path }).eq("id", studentId);
+    if (error) return toast.error(error.message);
+    toast.success("Photo saved");
+  };
+
+  const onPhotoInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const sid = pendingStudentId.current;
+    e.target.value = "";
+    pendingStudentId.current = null;
+    if (!file || !sid) return;
+    await capturePhoto(sid, file);
+  };
+
+  const takePhotoFor = (studentId: string) => {
+    pendingStudentId.current = studentId;
+    photoInputRef.current?.click();
   };
 
   const setStatus = async (id: string, status: string) => {

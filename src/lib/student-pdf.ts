@@ -17,7 +17,7 @@ interface StudentPdfData {
   photoDataUrl?: string | null;
 }
 
-export function generateStudentPdf({ student, payments, photoDataUrl }: StudentPdfData) {
+export function generateStudentPdf({ student, payments, photoDataUrl, action = "print" }: StudentPdfData & { action?: "print" | "download" }) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   let y = 40;
@@ -106,7 +106,11 @@ export function generateStudentPdf({ student, payments, photoDataUrl }: StudentP
   doc.setFontSize(9);
   doc.text(`Generated: ${new Date().toLocaleString()}`, 40, y);
 
-  doc.autoPrint?.();
-  const url = doc.output("bloburl");
-  window.open(url, "_blank");
+  if (action === "download") {
+    doc.save(`Student_${student.roll_no}.pdf`);
+  } else {
+    doc.autoPrint?.();
+    const url = doc.output("bloburl");
+    window.open(url, "_blank");
+  }
 }

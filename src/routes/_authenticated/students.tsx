@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Search, X, Camera } from "lucide-react";
+import { Plus, Search, X, Camera, FileDown } from "lucide-react";
 import { generateStudentPdf } from "@/lib/student-pdf";
 
 export const Route = createFileRoute("/_authenticated/students")({
@@ -177,6 +177,39 @@ function StudentsPage() {
     });
   };
 
+  const downloadStudent = async (r: Row) => {
+    const { data: pays } = await supabase
+      .from("payments")
+      .select("receipt_no, paid_on, mode, reference, amount")
+      .eq("student_id", r.id)
+      .order("paid_on", { ascending: false });
+    let photoDataUrl: string | null = null;
+    if (r.photo_url) {
+      try {
+        const { data: signed } = await supabase.storage.from("student-photos").createSignedUrl(r.photo_url, 600);
+        if (signed?.signedUrl) {
+          const res = await fetch(signed.signedUrl);
+          const blob = await res.blob();
+          photoDataUrl = await new Promise<string>((resolve) => {
+            const fr = new FileReader();
+            fr.onloadend = () => resolve(fr.result as string);
+            fr.readAsDataURL(blob);
+          });
+        }
+      } catch { /* ignore */ }
+    }
+    generateStudentPdf({
+      student: {
+        name: r.name, roll_no: r.roll_no, department: r.department, year: r.year,
+        academic_year: r.academic_year, phone: r.phone, parent_phone: r.parent_phone,
+        total_fee: Number(r.total_fee), stops: r.stops,
+      },
+      payments: (pays ?? []).map((p: any) => ({ ...p, amount: Number(p.amount) })),
+      photoDataUrl,
+      action: "download",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <input
@@ -314,6 +347,14 @@ function StudentsPage() {
                           title={r.photo_url ? "Replace photo" : "Take photo"}
                         >
                           <Camera className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => downloadStudent(r)}
+                          title="Download PDF"
+                        >
+                          <FileDown className="h-4 w-4" />
                         </Button>
                       </div>
                     </TableCell>

@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Download, Printer, RefreshCcw, Ban, FileSpreadsheet, FileDown, Eye } from "lucide-react";
-import { BusPassCard, statusBadgeClass, type BusPassData } from "@/components/bus-pass-card";
+import { BusPassCard, statusBadgeClass, fmtAcademicYear, type BusPassData } from "@/components/bus-pass-card";
 import { generateBusPassPdf } from "@/lib/bus-pass-pdf";
 import * as XLSX from "xlsx";
 
@@ -212,7 +212,7 @@ function BusPassAdmin() {
                           {r.pass_status === "fee_pending" ? "FEE PENDING" : r.pass_status}
                         </span>
                       </TableCell>
-                      <TableCell className="text-xs">AY {r.academic_year ?? "—"}</TableCell>
+                      <TableCell className="text-xs">AY {fmtAcademicYear(r.academic_year)}</TableCell>
                       <TableCell className="text-right">
                         <div className="inline-flex gap-1">
                           <Button size="icon" variant="ghost" title="Preview" onClick={() => openPreview(r)}><Eye className="h-4 w-4" /></Button>

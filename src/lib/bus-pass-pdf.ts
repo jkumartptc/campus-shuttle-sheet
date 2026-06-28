@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import type { BusPassData } from "@/components/bus-pass-card";
+import { fmtAcademicYear } from "@/components/bus-pass-card";
 import { collegeLogoUrl } from "@/components/college-logo";
 
 
@@ -41,7 +42,7 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   doc.text("TRANSPORT BUS PASS", W / 2, 21, { align: "center" });
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
-  doc.text(`AY ${data.academic_year ?? "—"}`, W - 4, 26, { align: "right" });
+  doc.text(`AY ${fmtAcademicYear(data.academic_year)}`, W - 4, 26, { align: "right" });
 
 
   // Photo
@@ -81,7 +82,7 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   doc.setDrawColor(220); doc.line(8, y, W - 8, y);
   y += 5;
   doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
-  doc.text(`Valid for Full Academic Year: ${data.academic_year ?? "—"}`, 8, y);
+  doc.text(`Valid for Full Academic Year: ${fmtAcademicYear(data.academic_year)}`, 8, y);
 
   // QR
   const qr = await QRCode.toDataURL(data.qr_token, { width: 600, margin: 1, errorCorrectionLevel: "M" });

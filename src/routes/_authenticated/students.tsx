@@ -43,6 +43,22 @@ function StudentsPage() {
   const [uploading, setUploading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement | null>(null);
   const pendingStudent = useRef<Row | null>(null);
+  const [qrFor, setQrFor] = useState<Row | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  const showQr = async (r: Row) => {
+    if (!r.qr_token) return toast.error("No QR token assigned");
+    const url = await QRCode.toDataURL(r.qr_token, { width: 320, margin: 2 });
+    setQrFor(r);
+    setQrDataUrl(url);
+  };
+  const downloadQr = () => {
+    if (!qrDataUrl || !qrFor) return;
+    const a = document.createElement("a");
+    a.href = qrDataUrl;
+    a.download = `QR_${qrFor.roll_no}.png`;
+    a.click();
+  };
 
   const takePhotoFor = (r: Row) => {
     pendingStudent.current = r;

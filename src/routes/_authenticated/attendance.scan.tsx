@@ -99,22 +99,28 @@ function ScanPage() {
       toast.error("Invalid QR code");
       return;
     }
-    const { data: student, error } = await supabase
-      .from("students")
-      .select("id, name, roll_no, department, photo_url, stops(name, routes(id, name))")
-      .eq("qr_token", token)
-      .maybeSingle();
-    if (error || !student) {
+    const { data: rows, error } = await supabase.rpc("resolve_bus_pass_qr", { p_qr_token: token });
+    const resolved: any = Array.isArray(rows) ? rows[0] : rows;
+    if (error || !resolved) {
       beep("err");
-      toast.error("Student not found");
+      toast.error("Bus pass not found");
       return;
     }
-    const s: any = student;
+    if (resolved.pass_status === "cancelled") { beep("err"); toast.error("Bus pass is cancelled"); return; }
+    if (resolved.pass_status === "expired") { beep("err"); toast.error("Bus pass expired"); return; }
+    if (resolved.pass_status === "fee_pending" || resolved.fee_status !== "paid") { beep("err"); toast.error("Transport fee pending"); return; }
+    if (resolved.valid_to && new Date(resolved.valid_to) < new Date()) { beep("err"); toast.error("Bus pass validity expired"); return; }
+    const s: any = {
+      id: resolved.student_id, name: resolved.student_name, roll_no: resolved.roll_no,
+      department: resolved.department, photo_url: resolved.photo_url,
+      stops: { name: resolved.stop_name, routes: { id: resolved.route_id, name: resolved.route_name } },
+    };
     const hour = new Date().getHours();
     const trip: "morning" | "evening" = hour < 12 ? "morning" : "evening";
     const now = new Date().toISOString();
     const date = todayKolkata();
-    const routeId: string | null = s.stops?.routes?.id ?? null;
+    const routeId: string | null = resolved.route_id ?? null;
+
 
     let lat: number | null = null, lon: number | null = null;
     if (navigator.geolocation) {

@@ -10,6 +10,7 @@ import {
   Inbox,
   Receipt,
   ScanLine,
+  IdCard,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +27,9 @@ const nav = [
   { to: "/buses", label: "Buses", icon: Bus, admin: false },
   { to: "/staff", label: "Staff", icon: ShieldCheck, admin: false },
   { to: "/attendance", label: "Bus Attendance", icon: ScanLine, admin: false },
+  { to: "/bus-pass", label: "Bus Pass", icon: IdCard, admin: false },
 ] as const;
+
 
 const driverNav = [
   { to: "/attendance/scan", label: "Scan QR", icon: ScanLine },

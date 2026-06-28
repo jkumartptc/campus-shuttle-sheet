@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Download, Printer, RefreshCcw, Ban, FileSpreadsheet, FileDown, Eye } from "lucide-react";
-import { BusPassCard, statusColor, type BusPassData } from "@/components/bus-pass-card";
+import { BusPassCard, statusBadgeClass, type BusPassData } from "@/components/bus-pass-card";
 import { generateBusPassPdf } from "@/lib/bus-pass-pdf";
 import * as XLSX from "xlsx";
 
@@ -208,7 +208,7 @@ function BusPassAdmin() {
                         <div className="text-muted-foreground">{r.boarding_point ?? "—"} · {r.bus_number ?? "—"}</div>
                       </TableCell>
                       <TableCell>
-                        <span className={`text-[10px] text-white px-2 py-0.5 rounded-full uppercase ${statusColor(r.pass_status)}`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase border ${statusBadgeClass(r.pass_status)}`}>
                           {r.pass_status === "fee_pending" ? "FEE PENDING" : r.pass_status}
                         </span>
                       </TableCell>

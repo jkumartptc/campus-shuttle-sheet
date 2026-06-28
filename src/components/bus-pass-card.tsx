@@ -43,6 +43,19 @@ function fmtDate(d: string) {
   return `${dd}-${mm}-${yy}`;
 }
 
+export function fmtAcademicYear(ay: string | null | undefined): string {
+  if (!ay) return "—";
+  if (/^\d{4}-\d{4}$/.test(ay)) return ay;
+  const m = ay.match(/^(\d{4})-(\d{2,4})$/);
+  if (m) {
+    const start = m[1];
+    const endShort = m[2];
+    const endFull = endShort.length === 2 ? `${start.slice(0, 2)}${endShort}` : endShort;
+    return `${start}-${endFull}`;
+  }
+  return ay;
+}
+
 export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photoSignedUrl?: string | null }>(
   function BusPassCard({ data, photoSignedUrl }, ref) {
     const [qrUrl, setQrUrl] = useState<string>("");

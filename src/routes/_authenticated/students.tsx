@@ -253,7 +253,16 @@ function StudentsPage() {
                 const status = bal <= 0 && r.total_fee > 0 ? "Paid" : r.paid > 0 ? "Partial" : "Pending";
                 return (
                   <TableRow key={r.id} className="cursor-pointer">
-                    <TableCell><Link to="/students/$id" params={{ id: r.id }} className="font-medium hover:underline">{r.roll_no}</Link></TableCell>
+                    <TableCell>
+                      <button
+                        type="button"
+                        onClick={() => printStudent(r)}
+                        className="font-medium text-primary hover:underline"
+                        title="Generate printable PDF"
+                      >
+                        {r.roll_no}
+                      </button>
+                    </TableCell>
                     <TableCell><Link to="/students/$id" params={{ id: r.id }} className="hover:underline">{r.name}</Link></TableCell>
                     <TableCell className="text-muted-foreground">{r.department ?? "—"} {r.year ? `· ${r.year}` : ""}</TableCell>
                     <TableCell className="text-muted-foreground">{r.stops?.routes?.name ?? "—"} / {r.stops?.name ?? "—"}</TableCell>

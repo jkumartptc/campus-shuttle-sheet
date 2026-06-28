@@ -74,6 +74,81 @@ export type Database = {
           },
         ]
       }
+      bus_pass: {
+        Row: {
+          academic_year: string | null
+          boarding_point: string | null
+          bus_number: string | null
+          created_at: string
+          download_count: number
+          fee_status: string
+          id: string
+          issued_by: string | null
+          last_download: string | null
+          pass_id: string
+          pass_status: string
+          qr_token: string
+          route_id: string | null
+          student_id: string
+          updated_at: string
+          valid_from: string
+          valid_to: string
+        }
+        Insert: {
+          academic_year?: string | null
+          boarding_point?: string | null
+          bus_number?: string | null
+          created_at?: string
+          download_count?: number
+          fee_status?: string
+          id?: string
+          issued_by?: string | null
+          last_download?: string | null
+          pass_id: string
+          pass_status?: string
+          qr_token?: string
+          route_id?: string | null
+          student_id: string
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string
+        }
+        Update: {
+          academic_year?: string | null
+          boarding_point?: string | null
+          bus_number?: string | null
+          created_at?: string
+          download_count?: number
+          fee_status?: string
+          id?: string
+          issued_by?: string | null
+          last_download?: string | null
+          pass_id?: string
+          pass_status?: string
+          qr_token?: string
+          route_id?: string | null
+          student_id?: string
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bus_pass_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bus_pass_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buses: {
         Row: {
           bus_no: string
@@ -490,12 +565,54 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bump_bus_pass_download: {
+        Args: { p_qr_token: string }
+        Returns: undefined
+      }
+      get_bus_pass_public: {
+        Args: { p_mobile: string; p_register_no: string }
+        Returns: {
+          academic_year: string
+          boarding_point: string
+          bus_number: string
+          department: string
+          fee_status: string
+          pass_id: string
+          pass_status: string
+          phone: string
+          photo_url: string
+          qr_token: string
+          roll_no: string
+          route_name: string
+          student_id: string
+          student_name: string
+          valid_from: string
+          valid_to: string
+          year: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      resolve_bus_pass_qr: {
+        Args: { p_qr_token: string }
+        Returns: {
+          department: string
+          fee_status: string
+          pass_status: string
+          photo_url: string
+          roll_no: string
+          route_id: string
+          route_name: string
+          stop_name: string
+          student_id: string
+          student_name: string
+          valid_to: string
+        }[]
       }
     }
     Enums: {

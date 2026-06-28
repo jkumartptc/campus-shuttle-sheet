@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RequestRouteImport } from './routes/request'
+import { Route as BusPassRouteImport } from './routes/bus-pass'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,7 @@ import { Route as AuthenticatedRequestsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedFeesRouteImport } from './routes/_authenticated/fees'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBusesRouteImport } from './routes/_authenticated/buses'
+import { Route as AuthenticatedBusPassesRouteImport } from './routes/_authenticated/bus-passes'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedBusesIdRouteImport } from './routes/_authenticated/buses.$id'
@@ -30,6 +32,11 @@ import { Route as AuthenticatedAttendanceManualRouteImport } from './routes/_aut
 const RequestRoute = RequestRouteImport.update({
   id: '/request',
   path: '/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusPassRoute = BusPassRouteImport.update({
+  id: '/bus-pass',
+  path: '/bus-pass',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -81,6 +88,11 @@ const AuthenticatedBusesRoute = AuthenticatedBusesRouteImport.update({
   path: '/buses',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBusPassesRoute = AuthenticatedBusPassesRouteImport.update({
+  id: '/bus-passes',
+  path: '/bus-passes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
   id: '/attendance',
   path: '/attendance',
@@ -118,8 +130,10 @@ const AuthenticatedAttendanceManualRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bus-pass': typeof BusPassRoute
   '/request': typeof RequestRoute
   '/attendance': typeof AuthenticatedAttendanceRouteWithChildren
+  '/bus-passes': typeof AuthenticatedBusPassesRoute
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
@@ -136,8 +150,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/bus-pass': typeof BusPassRoute
   '/request': typeof RequestRoute
   '/attendance': typeof AuthenticatedAttendanceRouteWithChildren
+  '/bus-passes': typeof AuthenticatedBusPassesRoute
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
@@ -156,8 +172,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/bus-pass': typeof BusPassRoute
   '/request': typeof RequestRoute
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRouteWithChildren
+  '/_authenticated/bus-passes': typeof AuthenticatedBusPassesRoute
   '/_authenticated/buses': typeof AuthenticatedBusesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/fees': typeof AuthenticatedFeesRoute
@@ -176,8 +194,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/bus-pass'
     | '/request'
     | '/attendance'
+    | '/bus-passes'
     | '/buses'
     | '/dashboard'
     | '/fees'
@@ -194,8 +214,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/bus-pass'
     | '/request'
     | '/attendance'
+    | '/bus-passes'
     | '/buses'
     | '/dashboard'
     | '/fees'
@@ -213,8 +235,10 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/bus-pass'
     | '/request'
     | '/_authenticated/attendance'
+    | '/_authenticated/bus-passes'
     | '/_authenticated/buses'
     | '/_authenticated/dashboard'
     | '/_authenticated/fees'
@@ -233,6 +257,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BusPassRoute: typeof BusPassRoute
   RequestRoute: typeof RequestRoute
 }
 
@@ -243,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/request'
       fullPath: '/request'
       preLoaderRoute: typeof RequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bus-pass': {
+      id: '/bus-pass'
+      path: '/bus-pass'
+      fullPath: '/bus-pass'
+      preLoaderRoute: typeof BusPassRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -313,6 +345,13 @@ declare module '@tanstack/react-router' {
       path: '/buses'
       fullPath: '/buses'
       preLoaderRoute: typeof AuthenticatedBusesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bus-passes': {
+      id: '/_authenticated/bus-passes'
+      path: '/bus-passes'
+      fullPath: '/bus-passes'
+      preLoaderRoute: typeof AuthenticatedBusPassesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/attendance': {
@@ -404,6 +443,7 @@ const AuthenticatedStudentsRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRouteWithChildren
+  AuthenticatedBusPassesRoute: typeof AuthenticatedBusPassesRoute
   AuthenticatedBusesRoute: typeof AuthenticatedBusesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFeesRoute: typeof AuthenticatedFeesRoute
@@ -415,6 +455,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAttendanceRoute: AuthenticatedAttendanceRouteWithChildren,
+  AuthenticatedBusPassesRoute: AuthenticatedBusPassesRoute,
   AuthenticatedBusesRoute: AuthenticatedBusesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFeesRoute: AuthenticatedFeesRoute,
@@ -431,6 +472,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  BusPassRoute: BusPassRoute,
   RequestRoute: RequestRoute,
 }
 export const routeTree = rootRouteImport

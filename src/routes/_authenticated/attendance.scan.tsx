@@ -108,7 +108,6 @@ function ScanPage() {
     }
     if (resolved.pass_status === "cancelled") { beep("err"); toast.error("Bus pass is cancelled"); return; }
     if (resolved.pass_status === "expired") { beep("err"); toast.error("Bus pass expired"); return; }
-    if (resolved.pass_status === "fee_pending" || resolved.fee_status !== "paid") { beep("err"); toast.error("Transport fee pending"); return; }
     if (resolved.valid_to && new Date(resolved.valid_to) < new Date()) { beep("err"); toast.error("Bus pass validity expired"); return; }
     const s: any = {
       id: resolved.student_id, name: resolved.student_name, roll_no: resolved.roll_no,

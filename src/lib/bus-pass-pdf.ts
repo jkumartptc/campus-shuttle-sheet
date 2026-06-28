@@ -1,6 +1,8 @@
 import jsPDF from "jspdf";
 import QRCode from "qrcode";
 import type { BusPassData } from "@/components/bus-pass-card";
+import { collegeLogoUrl } from "@/components/college-logo";
+
 
 async function imgToDataUrl(url: string): Promise<string | null> {
   try {
@@ -21,20 +23,26 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   const W = 148;
   // Header band
   doc.setFillColor(34, 84, 166);
-  doc.rect(0, 0, W, 24, "F");
+  doc.rect(0, 0, W, 28, "F");
+  // Logo
+  const logoData = await imgToDataUrl(collegeLogoUrl);
+  if (logoData) {
+    try { doc.addImage(logoData, "JPEG", 4, 3, 22, 22); } catch { /* */ }
+  }
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
-  doc.text("THIAGARAJAR POLYTECHNIC COLLEGE", W / 2, 9, { align: "center" });
+  doc.text("THIAGARAJAR POLYTECHNIC COLLEGE", W / 2, 10, { align: "center" });
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
-  doc.text("Salem – 636005", W / 2, 14, { align: "center" });
+  doc.text("Salem – 636005", W / 2, 15, { align: "center" });
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.text("TRANSPORT BUS PASS", W / 2, 19.5, { align: "center" });
+  doc.text("TRANSPORT BUS PASS", W / 2, 21, { align: "center" });
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
-  doc.text(`AY ${data.academic_year ?? "—"}`, W - 4, 23, { align: "right" });
+  doc.text(`AY ${data.academic_year ?? "—"}`, W - 4, 26, { align: "right" });
+
 
   // Photo
   const photoData = photoUrl ? await imgToDataUrl(photoUrl) : null;

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Bus } from "lucide-react";
+import { CollegeLogo } from "@/components/college-logo";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -63,12 +63,11 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-            <Bus className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle>Transport Admin</CardTitle>
-          <CardDescription>Sign in to manage students, fees & buses</CardDescription>
+          <CollegeLogo className="mx-auto mb-2 h-16 w-16" />
+          <CardTitle>Thiagarajar Polytechnic College</CardTitle>
+          <CardDescription>Salem – 636005 · Transport Admin</CardDescription>
         </CardHeader>
+
         <CardContent>
           <Tabs defaultValue="signin">
             <TabsList className="grid w-full grid-cols-2">

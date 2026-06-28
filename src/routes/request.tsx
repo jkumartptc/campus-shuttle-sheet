@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { CheckCircle2, Bus } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import { CollegeLogo } from "@/components/college-logo";
+
 import { inr } from "@/lib/format";
 
 export const Route = createFileRoute("/request")({
@@ -98,12 +100,13 @@ function RequestPage() {
     <div className="min-h-screen bg-muted/40 py-8 px-4">
       <Card className="max-w-2xl mx-auto">
         <CardHeader className="text-center">
-          <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-            <Bus className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle className="text-2xl">Transport Facility Request</CardTitle>
+          <CollegeLogo className="mx-auto h-16 w-16 mb-2" />
+          <CardTitle className="text-2xl">Thiagarajar Polytechnic College</CardTitle>
+          <p className="text-xs text-muted-foreground">Salem – 636005</p>
+          <p className="text-base font-semibold mt-2">Transport Facility Request</p>
           <p className="text-sm text-muted-foreground">Fill the form below to request college bus transport.</p>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={onSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Student Name *"><Input value={form.name} onChange={set("name")} maxLength={100} /></Field>

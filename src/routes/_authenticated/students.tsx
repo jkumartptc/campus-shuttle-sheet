@@ -151,7 +151,10 @@ function StudentsPage() {
                   ) : (
                     <div className="h-16 w-16 rounded-md border bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
                   )}
-                  <Input type="file" accept="image/*" onChange={onPhotoChange} />
+                  <div className="flex flex-col gap-2 flex-1">
+                    <Input type="file" accept="image/*" capture="environment" onChange={onPhotoChange} />
+                    <p className="text-[11px] text-muted-foreground">On mobile, this opens the camera. On desktop, pick a file.</p>
+                  </div>
                 </div>
               </div>
             </div>

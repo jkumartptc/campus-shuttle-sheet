@@ -44,7 +44,7 @@ function StudentsPage() {
   const load = async () => {
     const { data: studentsData } = await supabase
       .from("students")
-      .select("id, roll_no, name, department, year, phone, total_fee, academic_year, stops(name, routes(name))")
+      .select("id, roll_no, name, department, year, phone, parent_phone, total_fee, academic_year, photo_url, stops(name, routes(name))")
       .order("name");
     const { data: pays } = await supabase.from("payments").select("student_id, amount");
     const paidMap = new Map<string, number>();

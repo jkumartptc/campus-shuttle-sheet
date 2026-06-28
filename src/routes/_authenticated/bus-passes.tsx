@@ -218,7 +218,7 @@ function BusPassAdmin() {
                           <Button size="icon" variant="ghost" title="Preview" onClick={() => openPreview(r)}><Eye className="h-4 w-4" /></Button>
                           <Button size="icon" variant="ghost" title="Download PDF" onClick={() => downloadRow(r, "download")}><FileDown className="h-4 w-4" /></Button>
                           <Button size="icon" variant="ghost" title="Print" onClick={() => downloadRow(r, "print")}><Printer className="h-4 w-4" /></Button>
-                          <Button size="icon" variant="ghost" title="Regenerate QR" onClick={() => regenerateQr(r)}><RefreshCcw className="h-4 w-4" /></Button>
+                          
                           {r.pass_status !== "cancelled" ? (
                             <Button size="icon" variant="ghost" title="Cancel" onClick={() => setStatus(r, "cancelled")}><Ban className="h-4 w-4" /></Button>
                           ) : (

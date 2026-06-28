@@ -55,8 +55,6 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
     const printStatus =
       data.pass_status === "fee_pending" ? "active" : data.pass_status;
     const statusLabel = printStatus.toUpperCase();
-    const printFeeStatus =
-      data.fee_status === "pending" ? "paid" : data.fee_status;
 
     return (
       <div

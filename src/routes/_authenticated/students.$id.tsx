@@ -154,7 +154,7 @@ function StudentDetail() {
             <div className="absolute inset-0 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition">
               {uploadingPhoto ? "Uploading…" : "Change"}
             </div>
-            <input type="file" accept="image/*" className="hidden" onChange={onPhotoUpload} disabled={uploadingPhoto} />
+            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onPhotoUpload} disabled={uploadingPhoto} />
           </label>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{student.name}</h1>

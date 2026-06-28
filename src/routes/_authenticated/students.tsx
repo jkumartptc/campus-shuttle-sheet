@@ -305,7 +305,17 @@ function StudentsPage() {
                     <TableCell className="text-right">{inr(r.paid)}</TableCell>
                     <TableCell className="text-right font-medium">{inr(bal)}</TableCell>
                     <TableCell>
-                      <Badge variant={status === "Paid" ? "default" : status === "Partial" ? "secondary" : "destructive"}>{status}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={status === "Paid" ? "default" : status === "Partial" ? "secondary" : "destructive"}>{status}</Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => takePhotoFor(r)}
+                          title={r.photo_url ? "Replace photo" : "Take photo"}
+                        >
+                          <Camera className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

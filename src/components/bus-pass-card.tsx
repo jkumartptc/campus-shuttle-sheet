@@ -123,20 +123,13 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
           </div>
         </div>
 
-        {/* Validity + Fee */}
-        <div className="mx-5 mb-4 grid grid-cols-2 gap-3 rounded-md border border-emerald-200 bg-emerald-50/60 px-4 py-2.5">
+        {/* Validity */}
+        <div className="mx-5 mb-4 rounded-md border border-emerald-200 bg-emerald-50/60 px-4 py-2.5">
           <div className="flex items-center gap-2 text-[12px]">
             <Calendar className="h-4 w-4 text-emerald-700" />
             <div>
               <div className="text-[10px] uppercase tracking-wide text-slate-500">Validity</div>
               <div className="font-semibold text-slate-800">{fmtDate(data.valid_from)} to {fmtDate(data.valid_to)}</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-[12px]">
-            <CheckCircle2 className="h-4 w-4 text-emerald-700" />
-            <div>
-              <div className="text-[10px] uppercase tracking-wide text-slate-500">Fee Status</div>
-              <div className="font-semibold uppercase text-emerald-700">{printFeeStatus}</div>
             </div>
           </div>
         </div>

@@ -54,7 +54,7 @@ function PublicBusPass() {
     });
     setLoading(false);
     if (error || !data || (Array.isArray(data) && data.length === 0)) {
-      toast.error("Transport fee is pending or student is not registered for transport.");
+      toast.error("No bus pass found for the given details.");
       return;
     }
     const row = (Array.isArray(data) ? data[0] : data) as BusPassData;

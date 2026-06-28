@@ -170,15 +170,6 @@ function RequestsPage() {
                   </TableCell>
                   <TableCell className="text-right space-x-1 whitespace-nowrap">
                     {r.status !== "approved" && <Button size="sm" variant="outline" onClick={() => approve(r)}>Approve</Button>}
-                    {r.status === "approved" && (
-                      <Button size="sm" variant="outline" onClick={async () => {
-                        const { data: s } = await supabase.from("students").select("id").eq("roll_no", r.register_no).maybeSingle();
-                        if (!s) return toast.error("Student not found");
-                        takePhotoFor(s.id);
-                      }}>
-                        <Camera className="h-4 w-4 mr-1" />Photo
-                      </Button>
-                    )}
                     {r.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "rejected")}>Reject</Button>}
                     <Button size="sm" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="h-4 w-4" /></Button>
                   </TableCell>

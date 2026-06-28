@@ -106,14 +106,6 @@ function RequestsPage() {
 
   return (
     <div className="space-y-6">
-      <input
-        ref={photoInputRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={onPhotoInput}
-      />
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Transport Requests</h1>
         <p className="text-sm text-muted-foreground">{rows.length} request{rows.length === 1 ? "" : "s"} received</p>

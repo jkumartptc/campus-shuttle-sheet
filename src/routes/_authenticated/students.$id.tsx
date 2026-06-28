@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { inr, fmtDate } from "@/lib/format";
 import { generateReceiptPdf } from "@/lib/receipt";
 import { toast } from "sonner";
-import { ArrowLeft, Download, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Plus, Trash2, X } from "lucide-react";
 import { useCurrentUser, useIsAdmin } from "@/lib/use-role";
 
 export const Route = createFileRoute("/_authenticated/students/$id")({
@@ -51,6 +51,17 @@ function StudentDetail() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+
+  const removePhoto = async () => {
+    if (!student?.photo_url) return;
+    if (!confirm("Remove this student's photo?")) return;
+    const { error: delErr } = await supabase.storage.from("student-photos").remove([student.photo_url]);
+    if (delErr) return toast.error(delErr.message);
+    const { error } = await supabase.from("students").update({ photo_url: null }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Photo removed");
+    load();
+  };
 
   const onPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -145,17 +156,28 @@ function StudentDetail() {
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex items-start gap-4">
-          <label className="relative group cursor-pointer">
-            {photoUrl ? (
-              <img src={photoUrl} alt={student.name} className="h-20 w-20 rounded-lg object-cover border" />
-            ) : (
-              <div className="h-20 w-20 rounded-lg border bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
+          <div className="flex flex-col items-center gap-1">
+            <label className="relative group cursor-pointer">
+              {photoUrl ? (
+                <img src={photoUrl} alt={student.name} className="h-20 w-20 rounded-lg object-cover border" />
+              ) : (
+                <div className="h-20 w-20 rounded-lg border bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
+              )}
+              <div className="absolute inset-0 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition">
+                {uploadingPhoto ? "Uploading…" : "Change"}
+              </div>
+              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onPhotoUpload} disabled={uploadingPhoto} />
+            </label>
+            {photoUrl && (
+              <button
+                type="button"
+                onClick={removePhoto}
+                className="text-[11px] text-destructive hover:underline"
+              >
+                Remove
+              </button>
             )}
-            <div className="absolute inset-0 rounded-lg bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs transition">
-              {uploadingPhoto ? "Uploading…" : "Change"}
-            </div>
-            <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onPhotoUpload} disabled={uploadingPhoto} />
-          </label>
+          </div>
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{student.name}</h1>
             <p className="text-sm text-muted-foreground">{student.roll_no} · {student.department ?? "—"} · {student.year ?? "—"} · AY {student.academic_year}</p>

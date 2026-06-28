@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — Transport Admin" }] }),
@@ -77,6 +77,11 @@ function StudentsPage() {
     if (f && f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
     setPhotoFile(f);
     setPhotoPreview(f ? URL.createObjectURL(f) : null);
+  };
+
+  const clearPhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview(null);
   };
 
   const submit = async () => {
@@ -147,7 +152,17 @@ function StudentsPage() {
                 <Label className="text-xs">Photo</Label>
                 <div className="flex items-center gap-3">
                   {photoPreview ? (
-                    <img src={photoPreview} alt="preview" className="h-16 w-16 rounded-md object-cover border" />
+                    <div className="relative">
+                      <img src={photoPreview} alt="preview" className="h-16 w-16 rounded-md object-cover border" />
+                      <button
+                        type="button"
+                        onClick={clearPhoto}
+                        className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                        title="Remove photo"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
                   ) : (
                     <div className="h-16 w-16 rounded-md border bg-muted flex items-center justify-center text-xs text-muted-foreground">No photo</div>
                   )}

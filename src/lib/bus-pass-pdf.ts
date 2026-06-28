@@ -82,8 +82,6 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   y += 5;
   doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
   doc.text(`Valid: ${data.valid_from}  →  ${data.valid_to}`, 8, y);
-  const printFeeStatus = data.fee_status === "pending" ? "paid" : data.fee_status;
-  doc.text(`Fee: ${printFeeStatus.toUpperCase()}`, W - 8, y, { align: "right" });
 
   // QR
   const qr = await QRCode.toDataURL(data.qr_token, { width: 600, margin: 1, errorCorrectionLevel: "M" });

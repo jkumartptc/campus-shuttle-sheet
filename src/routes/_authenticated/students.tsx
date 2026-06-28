@@ -40,6 +40,33 @@ function StudentsPage() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingStudent = useRef<Row | null>(null);
+
+  const takePhotoFor = (r: Row) => {
+    pendingStudent.current = r;
+    photoInputRef.current?.click();
+  };
+
+  const onCapturePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const r = pendingStudent.current;
+    e.target.value = "";
+    pendingStudent.current = null;
+    if (!file || !r) return;
+    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
+    if (upErr) return toast.error(upErr.message);
+    if (r.photo_url) {
+      await supabase.storage.from("student-photos").remove([r.photo_url]);
+    }
+    const { error } = await supabase.from("students").update({ photo_url: path }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(`Photo saved for ${r.name}`);
+    load();
+  };
 
   const load = async () => {
     const { data: studentsData } = await supabase

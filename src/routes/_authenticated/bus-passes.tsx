@@ -97,12 +97,6 @@ function BusPassAdmin() {
     toast.success(`Pass ${status}`); load();
   };
 
-  const regenerateQr = async (r: Row) => {
-    const { data, error } = await supabase.from("bus_pass").update({ qr_token: crypto.randomUUID() }).eq("id", r.id).select().single();
-    if (error) return toast.error(error.message);
-    toast.success("QR regenerated"); load();
-    if (data) openPreview({ ...r, qr_token: (data as any).qr_token });
-  };
 
   const openIssue = async () => {
     setIssueOpen(true); setPickStudent("");

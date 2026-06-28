@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Search, X, Camera, FileDown } from "lucide-react";
+import { Plus, Search, X, Camera, FileDown, QrCode } from "lucide-react";
+import QRCode from "qrcode";
 import { generateStudentPdf } from "@/lib/student-pdf";
 
 export const Route = createFileRoute("/_authenticated/students")({

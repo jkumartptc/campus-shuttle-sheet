@@ -129,7 +129,7 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
             <Calendar className="h-4 w-4 text-emerald-700" />
             <div>
               <div className="text-[10px] uppercase tracking-wide text-slate-500">Validity</div>
-              <div className="font-semibold text-slate-800">{fmtDate(data.valid_from)} to {fmtDate(data.valid_to)}</div>
+              <div className="font-semibold text-slate-800">Valid for Full Academic Year {data.academic_year ?? "—"}</div>
             </div>
           </div>
         </div>

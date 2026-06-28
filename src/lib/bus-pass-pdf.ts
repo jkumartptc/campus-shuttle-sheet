@@ -81,7 +81,7 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   doc.setDrawColor(220); doc.line(8, y, W - 8, y);
   y += 5;
   doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
-  doc.text(`Valid: ${data.valid_from}  →  ${data.valid_to}`, 8, y);
+  doc.text(`Valid for Full Academic Year: ${data.academic_year ?? "—"}`, 8, y);
 
   // QR
   const qr = await QRCode.toDataURL(data.qr_token, { width: 600, margin: 1, errorCorrectionLevel: "M" });

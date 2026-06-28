@@ -212,7 +212,7 @@ function BusPassAdmin() {
                           {r.pass_status === "fee_pending" ? "FEE PENDING" : r.pass_status}
                         </span>
                       </TableCell>
-                      <TableCell className="text-xs">{r.valid_from} → {r.valid_to}</TableCell>
+                      <TableCell className="text-xs">AY {r.academic_year ?? "—"}</TableCell>
                       <TableCell className="text-right">
                         <div className="inline-flex gap-1">
                           <Button size="icon" variant="ghost" title="Preview" onClick={() => openPreview(r)}><Eye className="h-4 w-4" /></Button>

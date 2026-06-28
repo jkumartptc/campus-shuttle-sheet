@@ -87,7 +87,11 @@ export async function generateBusPassPdf(data: BusPassData, photoUrl: string | n
   // QR
   const qr = await QRCode.toDataURL(data.qr_token, { width: 600, margin: 1, errorCorrectionLevel: "M" });
   const qrSize = 70;
-  doc.addImage(qr, "PNG", (W - qrSize) / 2, y + 6, qrSize, qrSize);
+  const qrX = (W - qrSize) / 2;
+  const qrY = y + 6;
+  doc.setDrawColor(200);
+  doc.rect(qrX - 1.5, qrY - 1.5, qrSize + 3, qrSize + 3);
+  doc.addImage(qr, "PNG", qrX, qrY, qrSize, qrSize);
 
   y = y + 6 + qrSize + 5;
   doc.setFont("helvetica", "bold");

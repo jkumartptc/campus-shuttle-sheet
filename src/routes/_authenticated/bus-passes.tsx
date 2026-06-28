@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Printer, RefreshCcw, Ban, FileSpreadsheet, FileDown, Eye } from "lucide-react";
+import { Download, Printer, Ban, FileSpreadsheet, FileDown, Eye } from "lucide-react";
 import { BusPassCard, statusBadgeClass, fmtAcademicYear, type BusPassData } from "@/components/bus-pass-card";
 import { generateBusPassPdf } from "@/lib/bus-pass-pdf";
 import * as XLSX from "xlsx";
@@ -97,12 +97,6 @@ function BusPassAdmin() {
     toast.success(`Pass ${status}`); load();
   };
 
-  const regenerateQr = async (r: Row) => {
-    const { data, error } = await supabase.from("bus_pass").update({ qr_token: crypto.randomUUID() }).eq("id", r.id).select().single();
-    if (error) return toast.error(error.message);
-    toast.success("QR regenerated"); load();
-    if (data) openPreview({ ...r, qr_token: (data as any).qr_token });
-  };
 
   const openIssue = async () => {
     setIssueOpen(true); setPickStudent("");
@@ -218,7 +212,7 @@ function BusPassAdmin() {
                           <Button size="icon" variant="ghost" title="Preview" onClick={() => openPreview(r)}><Eye className="h-4 w-4" /></Button>
                           <Button size="icon" variant="ghost" title="Download PDF" onClick={() => downloadRow(r, "download")}><FileDown className="h-4 w-4" /></Button>
                           <Button size="icon" variant="ghost" title="Print" onClick={() => downloadRow(r, "print")}><Printer className="h-4 w-4" /></Button>
-                          <Button size="icon" variant="ghost" title="Regenerate QR" onClick={() => regenerateQr(r)}><RefreshCcw className="h-4 w-4" /></Button>
+                          
                           {r.pass_status !== "cancelled" ? (
                             <Button size="icon" variant="ghost" title="Cancel" onClick={() => setStatus(r, "cancelled")}><Ban className="h-4 w-4" /></Button>
                           ) : (

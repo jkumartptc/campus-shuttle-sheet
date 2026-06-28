@@ -125,9 +125,9 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
               {statusLabel}
             </span>
             {qrUrl ? (
-              <img src={qrUrl} alt="QR" className="w-full max-w-[140px] aspect-square" />
+              <img src={qrUrl} alt="QR" className="w-full max-w-[140px] aspect-square border border-slate-200 rounded-md" />
             ) : (
-              <div className="w-full max-w-[140px] aspect-square bg-slate-100" />
+              <div className="w-full max-w-[140px] aspect-square bg-slate-100 border border-slate-200 rounded-md" />
             )}
             <div className="mt-2 text-center text-[11px] text-slate-600">
               <div>PASS ID</div>

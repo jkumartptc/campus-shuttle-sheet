@@ -84,7 +84,7 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
             <div className="text-lg sm:text-xl font-bold leading-tight tracking-wide">THIAGARAJAR POLYTECHNIC COLLEGE</div>
             <div className="text-sm opacity-90">SALEM – 636 005</div>
             <div className="text-sm font-semibold mt-1 tracking-wider">TRANSPORT BUS PASS</div>
-            <div className="text-xs opacity-80">ACADEMIC YEAR {data.academic_year ?? "—"}</div>
+            <div className="text-xs opacity-80">ACADEMIC YEAR {fmtAcademicYear(data.academic_year)}</div>
           </div>
         </div>
 
@@ -142,7 +142,7 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
             <Calendar className="h-4 w-4 text-emerald-700" />
             <div>
               <div className="text-[10px] uppercase tracking-wide text-slate-500">Validity</div>
-              <div className="font-semibold text-slate-800">Valid for Full Academic Year {data.academic_year ?? "—"}</div>
+              <div className="font-semibold text-slate-800">Valid for Full Academic Year {fmtAcademicYear(data.academic_year)}</div>
             </div>
           </div>
         </div>

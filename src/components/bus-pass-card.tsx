@@ -1,6 +1,6 @@
 import { useEffect, useState, forwardRef } from "react";
 import QRCode from "qrcode";
-import { Calendar, CheckCircle2, Bus } from "lucide-react";
+import { Calendar, Bus } from "lucide-react";
 import { collegeLogoUrl } from "@/components/college-logo";
 
 export type BusPassData = {

@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
 import { Plus, Search, X, Camera } from "lucide-react";
-import { useRef } from "react";
 import { generateStudentPdf } from "@/lib/student-pdf";
 
 export const Route = createFileRoute("/_authenticated/students")({

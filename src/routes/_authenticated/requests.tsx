@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Copy, Trash2, ExternalLink } from "lucide-react";
+import { Copy, Trash2, ExternalLink, Camera } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/requests")({
   head: () => ({ meta: [{ title: "Transport Requests — Admin" }] }),
@@ -46,6 +46,9 @@ function RequestsPage() {
     if (typeof window !== "undefined") setShareUrl(`${window.location.origin}/request`);
   }, []);
 
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingStudentId = useRef<string | null>(null);
+
   const approve = async (r: Req) => {
     // Check if student already exists by roll_no
     const { data: existing } = await supabase
@@ -58,7 +61,7 @@ function RequestsPage() {
     const { data: stop } = await supabase
       .from("stops").select("id, fare").ilike("name", r.bus_stop_name).maybeSingle();
 
-    const { error: insErr } = await supabase.from("students").insert({
+    const { data: inserted, error: insErr } = await supabase.from("students").insert({
       name: r.name,
       roll_no: r.register_no,
       department: r.department,
@@ -68,13 +71,44 @@ function RequestsPage() {
       academic_year: currentAcademicYear(),
       stop_id: stop?.id ?? null,
       total_fee: Number(stop?.fare ?? r.bus_fee ?? 0),
-    });
-    if (insErr) return toast.error(insErr.message);
+    }).select("id").single();
+    if (insErr || !inserted) return toast.error(insErr?.message ?? "Failed to add student");
 
     const { error } = await supabase.from("transport_requests").update({ status: "approved" }).eq("id", r.id);
     if (error) return toast.error(error.message);
     toast.success("Approved & added to Students");
     load();
+
+    // Prompt to capture photo for the newly added student
+    if (confirm(`Take a photo for ${r.name} now?`)) {
+      pendingStudentId.current = inserted.id;
+      photoInputRef.current?.click();
+    }
+  };
+
+  const capturePhoto = async (studentId: string, file: File) => {
+    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
+    if (upErr) return toast.error(upErr.message);
+    const { error } = await supabase.from("students").update({ photo_url: path }).eq("id", studentId);
+    if (error) return toast.error(error.message);
+    toast.success("Photo saved");
+  };
+
+  const onPhotoInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const sid = pendingStudentId.current;
+    e.target.value = "";
+    pendingStudentId.current = null;
+    if (!file || !sid) return;
+    await capturePhoto(sid, file);
+  };
+
+  const takePhotoFor = (studentId: string) => {
+    pendingStudentId.current = studentId;
+    photoInputRef.current?.click();
   };
 
   const setStatus = async (id: string, status: string) => {
@@ -106,6 +140,14 @@ function RequestsPage() {
 
   return (
     <div className="space-y-6">
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={onPhotoInput}
+      />
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Transport Requests</h1>
         <p className="text-sm text-muted-foreground">{rows.length} request{rows.length === 1 ? "" : "s"} received</p>
@@ -170,6 +212,15 @@ function RequestsPage() {
                   </TableCell>
                   <TableCell className="text-right space-x-1 whitespace-nowrap">
                     {r.status !== "approved" && <Button size="sm" variant="outline" onClick={() => approve(r)}>Approve</Button>}
+                    {r.status === "approved" && (
+                      <Button size="sm" variant="outline" onClick={async () => {
+                        const { data: s } = await supabase.from("students").select("id").eq("roll_no", r.register_no).maybeSingle();
+                        if (!s) return toast.error("Student not found");
+                        takePhotoFor(s.id);
+                      }}>
+                        <Camera className="h-4 w-4 mr-1" />Photo
+                      </Button>
+                    )}
                     {r.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setStatus(r.id, "rejected")}>Reject</Button>}
                     <Button size="sm" variant="ghost" onClick={() => remove(r.id)}><Trash2 className="h-4 w-4" /></Button>
                   </TableCell>

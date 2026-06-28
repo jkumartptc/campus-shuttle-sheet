@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
 import { Plus, Search, X } from "lucide-react";
+import { generateStudentPdf } from "@/lib/student-pdf";
 
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — Transport Admin" }] }),
@@ -20,7 +21,8 @@ export const Route = createFileRoute("/_authenticated/students")({
 
 type Row = {
   id: string; roll_no: string; name: string; department: string | null; year: string | null;
-  phone: string | null; total_fee: number; academic_year: string;
+  phone: string | null; parent_phone: string | null; total_fee: number; academic_year: string;
+  photo_url: string | null;
   stops: { name: string; routes: { name: string } | null } | null;
   paid: number;
 };
@@ -42,7 +44,7 @@ function StudentsPage() {
   const load = async () => {
     const { data: studentsData } = await supabase
       .from("students")
-      .select("id, roll_no, name, department, year, phone, total_fee, academic_year, stops(name, routes(name))")
+      .select("id, roll_no, name, department, year, phone, parent_phone, total_fee, academic_year, photo_url, stops(name, routes(name))")
       .order("name");
     const { data: pays } = await supabase.from("payments").select("student_id, amount");
     const paidMap = new Map<string, number>();
@@ -114,6 +116,38 @@ function StudentsPage() {
     setForm({ roll_no: "", name: "", department: "", year: "", phone: "", parent_phone: "", stop_id: "", academic_year: form.academic_year, total_fee: "0" });
     setPhotoFile(null); setPhotoPreview(null);
     load();
+  };
+
+  const printStudent = async (r: Row) => {
+    const { data: pays } = await supabase
+      .from("payments")
+      .select("receipt_no, paid_on, mode, reference, amount")
+      .eq("student_id", r.id)
+      .order("paid_on", { ascending: false });
+    let photoDataUrl: string | null = null;
+    if (r.photo_url) {
+      try {
+        const { data: signed } = await supabase.storage.from("student-photos").createSignedUrl(r.photo_url, 600);
+        if (signed?.signedUrl) {
+          const res = await fetch(signed.signedUrl);
+          const blob = await res.blob();
+          photoDataUrl = await new Promise<string>((resolve) => {
+            const fr = new FileReader();
+            fr.onloadend = () => resolve(fr.result as string);
+            fr.readAsDataURL(blob);
+          });
+        }
+      } catch { /* ignore */ }
+    }
+    generateStudentPdf({
+      student: {
+        name: r.name, roll_no: r.roll_no, department: r.department, year: r.year,
+        academic_year: r.academic_year, phone: r.phone, parent_phone: r.parent_phone,
+        total_fee: Number(r.total_fee), stops: r.stops,
+      },
+      payments: (pays ?? []).map((p: any) => ({ ...p, amount: Number(p.amount) })),
+      photoDataUrl,
+    });
   };
 
   return (
@@ -219,7 +253,16 @@ function StudentsPage() {
                 const status = bal <= 0 && r.total_fee > 0 ? "Paid" : r.paid > 0 ? "Partial" : "Pending";
                 return (
                   <TableRow key={r.id} className="cursor-pointer">
-                    <TableCell><Link to="/students/$id" params={{ id: r.id }} className="font-medium hover:underline">{r.roll_no}</Link></TableCell>
+                    <TableCell>
+                      <button
+                        type="button"
+                        onClick={() => printStudent(r)}
+                        className="font-medium text-primary hover:underline"
+                        title="Generate printable PDF"
+                      >
+                        {r.roll_no}
+                      </button>
+                    </TableCell>
                     <TableCell><Link to="/students/$id" params={{ id: r.id }} className="hover:underline">{r.name}</Link></TableCell>
                     <TableCell className="text-muted-foreground">{r.department ?? "—"} {r.year ? `· ${r.year}` : ""}</TableCell>
                     <TableCell className="text-muted-foreground">{r.stops?.routes?.name ?? "—"} / {r.stops?.name ?? "—"}</TableCell>

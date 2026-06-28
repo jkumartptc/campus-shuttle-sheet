@@ -373,6 +373,14 @@ function StudentsPage() {
                         >
                           <FileDown className="h-4 w-4" />
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => showQr(r)}
+                          title="Show attendance QR"
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -382,6 +390,17 @@ function StudentsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={!!qrFor} onOpenChange={(o) => { if (!o) { setQrFor(null); setQrDataUrl(null); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Attendance QR — {qrFor?.name}</DialogTitle></DialogHeader>
+          <div className="flex flex-col items-center gap-3">
+            {qrDataUrl && <img src={qrDataUrl} alt="QR" className="h-64 w-64" />}
+            <div className="text-sm text-muted-foreground">{qrFor?.roll_no}</div>
+            <Button onClick={downloadQr}><FileDown className="mr-2 h-4 w-4" /> Download PNG</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

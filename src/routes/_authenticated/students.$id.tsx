@@ -52,6 +52,17 @@ function StudentDetail() {
 
   useEffect(() => { load(); }, [load]);
 
+  const removePhoto = async () => {
+    if (!student?.photo_url) return;
+    if (!confirm("Remove this student's photo?")) return;
+    const { error: delErr } = await supabase.storage.from("student-photos").remove([student.photo_url]);
+    if (delErr) return toast.error(delErr.message);
+    const { error } = await supabase.from("students").update({ photo_url: null }).eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Photo removed");
+    load();
+  };
+
   const onPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;

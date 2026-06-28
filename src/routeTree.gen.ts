@@ -20,8 +20,12 @@ import { Route as AuthenticatedRequestsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedFeesRouteImport } from './routes/_authenticated/fees'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBusesRouteImport } from './routes/_authenticated/buses'
+import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedBusesIdRouteImport } from './routes/_authenticated/buses.$id'
+import { Route as AuthenticatedAttendanceScanRouteImport } from './routes/_authenticated/attendance.scan'
+import { Route as AuthenticatedAttendanceReportsRouteImport } from './routes/_authenticated/attendance.reports'
+import { Route as AuthenticatedAttendanceManualRouteImport } from './routes/_authenticated/attendance.manual'
 
 const RequestRoute = RequestRouteImport.update({
   id: '/request',
@@ -77,6 +81,11 @@ const AuthenticatedBusesRoute = AuthenticatedBusesRouteImport.update({
   path: '/buses',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedStudentsIdRoute = AuthenticatedStudentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -87,11 +96,30 @@ const AuthenticatedBusesIdRoute = AuthenticatedBusesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedBusesRoute,
 } as any)
+const AuthenticatedAttendanceScanRoute =
+  AuthenticatedAttendanceScanRouteImport.update({
+    id: '/scan',
+    path: '/scan',
+    getParentRoute: () => AuthenticatedAttendanceRoute,
+  } as any)
+const AuthenticatedAttendanceReportsRoute =
+  AuthenticatedAttendanceReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAttendanceRoute,
+  } as any)
+const AuthenticatedAttendanceManualRoute =
+  AuthenticatedAttendanceManualRouteImport.update({
+    id: '/manual',
+    path: '/manual',
+    getParentRoute: () => AuthenticatedAttendanceRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/request': typeof RequestRoute
+  '/attendance': typeof AuthenticatedAttendanceRouteWithChildren
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
@@ -99,6 +127,9 @@ export interface FileRoutesByFullPath {
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/attendance/manual': typeof AuthenticatedAttendanceManualRoute
+  '/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
+  '/attendance/scan': typeof AuthenticatedAttendanceScanRoute
   '/buses/$id': typeof AuthenticatedBusesIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
 }
@@ -106,6 +137,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/request': typeof RequestRoute
+  '/attendance': typeof AuthenticatedAttendanceRouteWithChildren
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
@@ -113,6 +145,9 @@ export interface FileRoutesByTo {
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/attendance/manual': typeof AuthenticatedAttendanceManualRoute
+  '/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
+  '/attendance/scan': typeof AuthenticatedAttendanceScanRoute
   '/buses/$id': typeof AuthenticatedBusesIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
 }
@@ -122,6 +157,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/request': typeof RequestRoute
+  '/_authenticated/attendance': typeof AuthenticatedAttendanceRouteWithChildren
   '/_authenticated/buses': typeof AuthenticatedBusesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/fees': typeof AuthenticatedFeesRoute
@@ -129,6 +165,9 @@ export interface FileRoutesById {
   '/_authenticated/routes': typeof AuthenticatedRoutesRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/_authenticated/attendance/manual': typeof AuthenticatedAttendanceManualRoute
+  '/_authenticated/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
+  '/_authenticated/attendance/scan': typeof AuthenticatedAttendanceScanRoute
   '/_authenticated/buses/$id': typeof AuthenticatedBusesIdRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
 }
@@ -138,6 +177,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/request'
+    | '/attendance'
     | '/buses'
     | '/dashboard'
     | '/fees'
@@ -145,6 +185,9 @@ export interface FileRouteTypes {
     | '/routes'
     | '/staff'
     | '/students'
+    | '/attendance/manual'
+    | '/attendance/reports'
+    | '/attendance/scan'
     | '/buses/$id'
     | '/students/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -152,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/request'
+    | '/attendance'
     | '/buses'
     | '/dashboard'
     | '/fees'
@@ -159,6 +203,9 @@ export interface FileRouteTypes {
     | '/routes'
     | '/staff'
     | '/students'
+    | '/attendance/manual'
+    | '/attendance/reports'
+    | '/attendance/scan'
     | '/buses/$id'
     | '/students/$id'
   id:
@@ -167,6 +214,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/request'
+    | '/_authenticated/attendance'
     | '/_authenticated/buses'
     | '/_authenticated/dashboard'
     | '/_authenticated/fees'
@@ -174,6 +222,9 @@ export interface FileRouteTypes {
     | '/_authenticated/routes'
     | '/_authenticated/staff'
     | '/_authenticated/students'
+    | '/_authenticated/attendance/manual'
+    | '/_authenticated/attendance/reports'
+    | '/_authenticated/attendance/scan'
     | '/_authenticated/buses/$id'
     | '/_authenticated/students/$id'
   fileRoutesById: FileRoutesById
@@ -264,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBusesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/attendance': {
+      id: '/_authenticated/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AuthenticatedAttendanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/students/$id': {
       id: '/_authenticated/students/$id'
       path: '/$id'
@@ -278,8 +336,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBusesIdRouteImport
       parentRoute: typeof AuthenticatedBusesRoute
     }
+    '/_authenticated/attendance/scan': {
+      id: '/_authenticated/attendance/scan'
+      path: '/scan'
+      fullPath: '/attendance/scan'
+      preLoaderRoute: typeof AuthenticatedAttendanceScanRouteImport
+      parentRoute: typeof AuthenticatedAttendanceRoute
+    }
+    '/_authenticated/attendance/reports': {
+      id: '/_authenticated/attendance/reports'
+      path: '/reports'
+      fullPath: '/attendance/reports'
+      preLoaderRoute: typeof AuthenticatedAttendanceReportsRouteImport
+      parentRoute: typeof AuthenticatedAttendanceRoute
+    }
+    '/_authenticated/attendance/manual': {
+      id: '/_authenticated/attendance/manual'
+      path: '/manual'
+      fullPath: '/attendance/manual'
+      preLoaderRoute: typeof AuthenticatedAttendanceManualRouteImport
+      parentRoute: typeof AuthenticatedAttendanceRoute
+    }
   }
 }
+
+interface AuthenticatedAttendanceRouteChildren {
+  AuthenticatedAttendanceManualRoute: typeof AuthenticatedAttendanceManualRoute
+  AuthenticatedAttendanceReportsRoute: typeof AuthenticatedAttendanceReportsRoute
+  AuthenticatedAttendanceScanRoute: typeof AuthenticatedAttendanceScanRoute
+}
+
+const AuthenticatedAttendanceRouteChildren: AuthenticatedAttendanceRouteChildren =
+  {
+    AuthenticatedAttendanceManualRoute: AuthenticatedAttendanceManualRoute,
+    AuthenticatedAttendanceReportsRoute: AuthenticatedAttendanceReportsRoute,
+    AuthenticatedAttendanceScanRoute: AuthenticatedAttendanceScanRoute,
+  }
+
+const AuthenticatedAttendanceRouteWithChildren =
+  AuthenticatedAttendanceRoute._addFileChildren(
+    AuthenticatedAttendanceRouteChildren,
+  )
 
 interface AuthenticatedBusesRouteChildren {
   AuthenticatedBusesIdRoute: typeof AuthenticatedBusesIdRoute
@@ -306,6 +403,7 @@ const AuthenticatedStudentsRouteWithChildren =
   )
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRouteWithChildren
   AuthenticatedBusesRoute: typeof AuthenticatedBusesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFeesRoute: typeof AuthenticatedFeesRoute
@@ -316,6 +414,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAttendanceRoute: AuthenticatedAttendanceRouteWithChildren,
   AuthenticatedBusesRoute: AuthenticatedBusesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFeesRoute: AuthenticatedFeesRoute,

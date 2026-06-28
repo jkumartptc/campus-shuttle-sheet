@@ -14,7 +14,7 @@ import { BusPassCard, statusColor, type BusPassData } from "@/components/bus-pas
 import { generateBusPassPdf } from "@/lib/bus-pass-pdf";
 import * as XLSX from "xlsx";
 
-export const Route = createFileRoute("/_authenticated/bus-pass")({
+export const Route = createFileRoute("/_authenticated/bus-passes")({
   head: () => ({ meta: [{ title: "Bus Pass — Admin" }] }),
   component: BusPassAdmin,
 });

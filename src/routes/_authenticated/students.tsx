@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Search, X } from "lucide-react";
+import { Plus, Search, X, Camera } from "lucide-react";
 import { generateStudentPdf } from "@/lib/student-pdf";
 
 export const Route = createFileRoute("/_authenticated/students")({
@@ -40,6 +40,33 @@ function StudentsPage() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
+  const pendingStudent = useRef<Row | null>(null);
+
+  const takePhotoFor = (r: Row) => {
+    pendingStudent.current = r;
+    photoInputRef.current?.click();
+  };
+
+  const onCapturePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const r = pendingStudent.current;
+    e.target.value = "";
+    pendingStudent.current = null;
+    if (!file || !r) return;
+    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
+    if (upErr) return toast.error(upErr.message);
+    if (r.photo_url) {
+      await supabase.storage.from("student-photos").remove([r.photo_url]);
+    }
+    const { error } = await supabase.from("students").update({ photo_url: path }).eq("id", r.id);
+    if (error) return toast.error(error.message);
+    toast.success(`Photo saved for ${r.name}`);
+    load();
+  };
 
   const load = async () => {
     const { data: studentsData } = await supabase
@@ -152,6 +179,14 @@ function StudentsPage() {
 
   return (
     <div className="space-y-6">
+      <input
+        ref={photoInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        onChange={onCapturePhoto}
+      />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Students</h1>
@@ -270,7 +305,17 @@ function StudentsPage() {
                     <TableCell className="text-right">{inr(r.paid)}</TableCell>
                     <TableCell className="text-right font-medium">{inr(bal)}</TableCell>
                     <TableCell>
-                      <Badge variant={status === "Paid" ? "default" : status === "Partial" ? "secondary" : "destructive"}>{status}</Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={status === "Paid" ? "default" : status === "Partial" ? "secondary" : "destructive"}>{status}</Badge>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => takePhotoFor(r)}
+                          title={r.photo_url ? "Replace photo" : "Take photo"}
+                        >
+                          <Camera className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 );

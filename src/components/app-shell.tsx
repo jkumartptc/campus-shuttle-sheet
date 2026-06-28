@@ -17,6 +17,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCurrentUser, useUserRoles } from "@/lib/use-role";
+import { CollegeLogo } from "@/components/college-logo";
+
 
 const nav = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, admin: false },
@@ -78,12 +80,16 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-muted/30">
       <aside className="hidden w-64 shrink-0 flex-col border-r bg-card md:flex">
-        <div className="border-b px-5 py-4">
+        <div className="border-b px-4 py-3">
           <div className="flex items-center gap-2">
-            <Bus className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Transport Admin</span>
+            <CollegeLogo className="h-9 w-9" />
+            <div className="leading-tight">
+              <div className="text-[11px] font-bold">THIAGARAJAR POLYTECHNIC</div>
+              <div className="text-[10px] text-muted-foreground">Transport Admin · Salem</div>
+            </div>
           </div>
         </div>
+
         <nav className="flex-1 space-y-1 p-3">
           <NavItems />
         </nav>
@@ -97,9 +103,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b bg-card px-4 py-3 md:hidden">
           <div className="flex items-center gap-2">
-            <Bus className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Transport</span>
+            <CollegeLogo className="h-7 w-7" />
+            <span className="font-semibold text-sm">TPC Transport</span>
           </div>
+
           <Button variant="ghost" size="icon" onClick={() => setOpen((v) => !v)}>
             <Menu className="h-5 w-5" />
           </Button>

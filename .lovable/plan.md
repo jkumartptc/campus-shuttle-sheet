@@ -1,73 +1,71 @@
+## Bus Attendance Module
 
-# College Transport Management App
+A new self-contained module added alongside existing Transport, Fees, Routes, Staff, and Maintenance modules. Nothing existing is modified beyond adding a sidebar link and a tab on the student profile.
 
-A simple admin app for you and other transport staff to manage students, bus stops/routes, transport fees, and **bus maintenance** (diesel & mileage).
+### 1. Database (one migration)
 
-## What you'll get
+New `app_role` value: `driver` (added to existing `app_role` enum).
 
-**1. Login (staff only)**
-- Email + password sign-in via Lovable Cloud.
-- First user becomes admin; admins can promote other staff. No public signup.
+New table `public.attendance`:
+- `student_id`, `attendance_date` (date), `attendance_time` (timestamptz), `trip` (`'morning' | 'evening'`), `route_id`, `device_name`, `user_id`, `latitude`, `longitude`, `remarks`, `created_at`
+- Unique index on `(student_id, attendance_date, trip)` to prevent duplicates
+- GRANT + RLS: authenticated can SELECT; INSERT allowed for `driver`/`staff`/`admin`; UPDATE/DELETE admin only
 
-**2. Buses, Routes & Stops**
-- Add/edit/delete **buses** (bus number, registration no, driver name, driver phone, capacity).
-- Add/edit/delete routes (e.g. "Route 1 - North City") and assign a bus to each.
-- Add stops under each route, each with its own **fare amount** (since fees vary by stop/distance).
+New column `students.qr_token uuid unique` auto-generated for every student (existing + new via default + backfill).
 
-**3. Students**
-- Fields: Name, Roll No, Department, Year, Phone, Parent Phone, Route, Stop, Academic Year.
-- Annual transport fee auto-filled from the chosen stop (editable).
-- Search & filter by name, roll no, route, or payment status (Paid / Partial / Pending).
+### 2. Sidebar
 
-**4. Fee Payments**
-- Record payment: amount, date, mode (Cash / UPI / Bank), reference no, remarks.
-- Student page shows Total Fee, Paid, **Balance**, and full payment history.
-- Edit/delete a payment if entered wrong.
+Add **Bus Attendance** entry (icon: ScanLine) in `src/components/app-sidebar.tsx` pointing to `/attendance`. Driver-role users see only: Scan QR, Today's Attendance, Logout (the rest of the sidebar is hidden when `role === 'driver'`).
 
-**5. PDF Receipts**
-- After saving a payment, "Download Receipt" → PDF with college header, student details, route/stop, amount paid, balance, date, receipt no, signature line.
+### 3. Routes
 
-**6. Bus Maintenance (Diesel & Mileage)**
-- **Diesel/fuel log** per bus: date, litres, rate/litre, total cost, odometer reading, filling station, remarks.
-- **Mileage auto-calculated** between two consecutive fills: `(new odo − last odo) ÷ litres of new fill` → shown as km/L.
-- **Service/repair log** per bus: date, type (oil change, tyre, brake, general service…), workshop, cost, next-service-due date, remarks.
-- Per-bus summary: total km this month, total diesel cost, average mileage, last service date, upcoming service alert.
-
-**7. Dashboard**
-- Total students using transport
-- Total fee expected (current academic year), Total collected, Total pending
-- Students per route
-- This month's **diesel spend** and **average mileage per bus**
-- Recent payments + recent fuel entries
-
-## Pages
-
-```text
-/login                      Staff sign-in
-/                           Dashboard
-/students                   List + search + add
-/students/$id               Detail + payments + receipts
-/routes                     Routes & stops (with fares)
-/buses                      Buses list
-/buses/$id                  Bus detail: fuel log, mileage, service log
-/staff                      Admin-only: invite/promote staff
+```
+src/routes/_authenticated/
+  attendance.tsx              -> dashboard cards + tabs (Scan / Manual / Reports)
+  attendance.scan.tsx         -> mobile driver scan page
+  attendance.manual.tsx       -> admin-only manual marking
+  attendance.reports.tsx      -> filters + export Excel/PDF
+  students.$id.tsx            -> add Attendance tab (history + %)
 ```
 
-## Data model (technical)
+### 4. Dashboard cards (`/attendance`)
 
-- `buses` — id, bus_no, reg_no, driver_name, driver_phone, capacity
-- `routes` — id, name, bus_id, notes
-- `stops` — id, route_id, name, fare, order
-- `students` — id, roll_no (unique), name, department, year, phone, parent_phone, stop_id, academic_year, total_fee
-- `payments` — id, student_id, amount, paid_on, mode, reference, remarks, receipt_no, recorded_by
-- `fuel_logs` — id, bus_id, filled_on, litres, rate_per_litre, total_cost, odometer, station, mileage_kmpl (computed on insert from previous odo+litres), remarks
-- `service_logs` — id, bus_id, service_on, type, workshop, cost, next_due_on, remarks
-- `profiles` — id (auth user), full_name
-- `user_roles` — user_id, role ('admin' | 'staff') — separate table for security
-- `balance` = `total_fee − SUM(payments.amount)` (computed in UI)
-- RLS: authenticated staff read/write; only admins manage staff and delete records.
+Today's Morning count, Today's Evening count, Students on Board (latest trip count), Absent Students (active students − present), Last Scan Time.
 
-## Out of scope (ask if you want it later)
-- Student-facing login, SMS/email fee reminders, online payment gateway, GPS bus tracking, student attendance on bus.
+### 5. Scan page (`/attendance/scan`)
 
-Approve to start building.
+- Mobile-first, large "Scan QR" button
+- Uses `html5-qrcode` (Worker-safe, pure JS) for camera scanning
+- On scan: lookup `students` by `qr_token` → show photo, name, roll, dept, route, stop
+- Auto-detect trip: `< 12:00` morning, else evening
+- Insert attendance, catching unique-violation as "already marked"
+- Success beep via WebAudio oscillator (no asset needed); error toast on invalid/duplicate
+- Capture `navigator.geolocation` (best-effort), device name from `navigator.userAgent`
+
+### 6. Offline support
+
+- IndexedDB queue (via small wrapper in `src/lib/attendance-offline.ts`)
+- Online/Offline badge + pending count in scan page header
+- `window.ononline` flush; also on app mount
+
+### 7. Student profile Attendance tab
+
+Table of last 60 days with morning/evening time + status; attendance % = present_days / school_days_in_range.
+
+### 8. Reports
+
+Filters: date, month, academic year, route. Tables for Daily, Monthly, Student-wise, Route-wise. Export Excel via `xlsx` (already-installed-or-add), PDF via existing `jspdf`.
+
+### 9. QR generation
+
+Each student row in students list gets a "QR" button to open dialog rendering `qrcode` lib → PNG download. QR payload = `qr_token` only (UUID), no PII.
+
+### 10. Driver role
+
+`has_role(uid,'driver')`. New users with role `driver` redirected to `/attendance/scan` on login; sidebar filtered.
+
+### Packages to add
+`html5-qrcode`, `qrcode`, `xlsx`, `idb`
+
+### Out of scope (explicit)
+No changes to existing Transport/Fees/Routes/Staff/Maintenance code paths. Existing student/payments/pdf flows untouched.

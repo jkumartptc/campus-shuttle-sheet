@@ -254,7 +254,69 @@ function StudentDetail() {
           </Table>
         </CardContent>
       </Card>
+      <AttendanceTab studentId={id} />
     </div>
+  );
+}
+
+function AttendanceTab({ studentId }: { studentId: string }) {
+  const [rows, setRows] = useState<{ date: string; morning?: string; evening?: string }[]>([]);
+  const [pct, setPct] = useState(0);
+  useEffect(() => {
+    (async () => {
+      const since = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+      const { data } = await supabase
+        .from("attendance")
+        .select("attendance_date, attendance_time, trip")
+        .eq("student_id", studentId)
+        .gte("attendance_date", since)
+        .order("attendance_date", { ascending: false });
+      const map = new Map<string, { date: string; morning?: string; evening?: string }>();
+      for (const r of data ?? []) {
+        const k = r.attendance_date;
+        const e = map.get(k) ?? { date: k };
+        const t = new Date(r.attendance_time).toLocaleTimeString();
+        if (r.trip === "morning") e.morning = t; else e.evening = t;
+        map.set(k, e);
+      }
+      const list = [...map.values()];
+      setRows(list);
+      // % = present days / weekdays in last 60 days
+      const days: string[] = [];
+      for (let i = 0; i < 60; i++) {
+        const d = new Date(Date.now() - i * 86400000);
+        if (d.getDay() !== 0 && d.getDay() !== 6) days.push(d.toISOString().slice(0, 10));
+      }
+      const present = days.filter((d) => map.has(d)).length;
+      setPct(days.length ? Math.round((present / days.length) * 100) : 0);
+    })();
+  }, [studentId]);
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base">Attendance (last 60 days)</CardTitle>
+        <div className="text-sm text-muted-foreground">Attendance: <span className="font-semibold text-foreground">{pct}%</span></div>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader><TableRow>
+            <TableHead>Date</TableHead><TableHead>Morning</TableHead><TableHead>Evening</TableHead><TableHead>Status</TableHead>
+          </TableRow></TableHeader>
+          <TableBody>
+            {rows.length === 0 && <TableRow><TableCell colSpan={4} className="py-6 text-center text-muted-foreground">No attendance records.</TableCell></TableRow>}
+            {rows.map((r) => (
+              <TableRow key={r.date}>
+                <TableCell>{fmtDate(r.date)}</TableCell>
+                <TableCell>{r.morning ?? "—"}</TableCell>
+                <TableCell>{r.evening ?? "—"}</TableCell>
+                <TableCell>{r.morning || r.evening ? "Present" : "Absent"}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
 

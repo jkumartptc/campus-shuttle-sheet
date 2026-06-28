@@ -11,7 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Search, X, Camera, FileDown } from "lucide-react";
+import { Plus, Search, X, Camera, FileDown, QrCode } from "lucide-react";
+import QRCode from "qrcode";
 import { generateStudentPdf } from "@/lib/student-pdf";
 
 export const Route = createFileRoute("/_authenticated/students")({
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/students")({
 type Row = {
   id: string; roll_no: string; name: string; department: string | null; year: string | null;
   phone: string | null; parent_phone: string | null; total_fee: number; academic_year: string;
-  photo_url: string | null;
+  photo_url: string | null; qr_token: string | null;
   stops: { name: string; routes: { name: string } | null } | null;
   paid: number;
 };
@@ -42,6 +43,22 @@ function StudentsPage() {
   const [uploading, setUploading] = useState(false);
   const photoInputRef = useRef<HTMLInputElement | null>(null);
   const pendingStudent = useRef<Row | null>(null);
+  const [qrFor, setQrFor] = useState<Row | null>(null);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  const showQr = async (r: Row) => {
+    if (!r.qr_token) return toast.error("No QR token assigned");
+    const url = await QRCode.toDataURL(r.qr_token, { width: 320, margin: 2 });
+    setQrFor(r);
+    setQrDataUrl(url);
+  };
+  const downloadQr = () => {
+    if (!qrDataUrl || !qrFor) return;
+    const a = document.createElement("a");
+    a.href = qrDataUrl;
+    a.download = `QR_${qrFor.roll_no}.png`;
+    a.click();
+  };
 
   const takePhotoFor = (r: Row) => {
     pendingStudent.current = r;
@@ -71,7 +88,7 @@ function StudentsPage() {
   const load = async () => {
     const { data: studentsData } = await supabase
       .from("students")
-      .select("id, roll_no, name, department, year, phone, parent_phone, total_fee, academic_year, photo_url, stops(name, routes(name))")
+      .select("id, roll_no, name, department, year, phone, parent_phone, total_fee, academic_year, photo_url, qr_token, stops(name, routes(name))")
       .order("name");
     const { data: pays } = await supabase.from("payments").select("student_id, amount");
     const paidMap = new Map<string, number>();
@@ -356,6 +373,14 @@ function StudentsPage() {
                         >
                           <FileDown className="h-4 w-4" />
                         </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => showQr(r)}
+                          title="Show attendance QR"
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -365,6 +390,17 @@ function StudentsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={!!qrFor} onOpenChange={(o) => { if (!o) { setQrFor(null); setQrDataUrl(null); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Attendance QR — {qrFor?.name}</DialogTitle></DialogHeader>
+          <div className="flex flex-col items-center gap-3">
+            {qrDataUrl && <img src={qrDataUrl} alt="QR" className="h-64 w-64" />}
+            <div className="text-sm text-muted-foreground">{qrFor?.roll_no}</div>
+            <Button onClick={downloadQr}><FileDown className="mr-2 h-4 w-4" /> Download PNG</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

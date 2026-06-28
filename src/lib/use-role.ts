@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "admin" | "staff";
+export type AppRole = "admin" | "staff" | "driver";
 
 export function useCurrentUser() {
   const [user, setUser] = useState<{ id: string; email: string | null } | null>(null);
@@ -32,4 +32,17 @@ export function useIsAdmin(userId: string | undefined) {
       .then(({ data }) => setIsAdmin(!!data));
   }, [userId]);
   return isAdmin;
+}
+
+export function useUserRoles(userId: string | undefined) {
+  const [roles, setRoles] = useState<AppRole[] | null>(null);
+  useEffect(() => {
+    if (!userId) { setRoles(null); return; }
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .then(({ data }) => setRoles(((data ?? []) as { role: AppRole }[]).map((r) => r.role)));
+  }, [userId]);
+  return roles;
 }

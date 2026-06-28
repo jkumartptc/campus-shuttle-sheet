@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance: {
+        Row: {
+          attendance_date: string
+          attendance_time: string
+          created_at: string
+          device_name: string | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          remarks: string | null
+          route_id: string | null
+          student_id: string
+          trip: string
+          user_id: string | null
+        }
+        Insert: {
+          attendance_date?: string
+          attendance_time?: string
+          created_at?: string
+          device_name?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          remarks?: string | null
+          route_id?: string | null
+          student_id: string
+          trip: string
+          user_id?: string | null
+        }
+        Update: {
+          attendance_date?: string
+          attendance_time?: string
+          created_at?: string
+          device_name?: string | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          remarks?: string | null
+          route_id?: string | null
+          student_id?: string
+          trip?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "routes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buses: {
         Row: {
           bus_no: string
@@ -304,6 +364,7 @@ export type Database = {
           parent_phone: string | null
           phone: string | null
           photo_url: string | null
+          qr_token: string
           roll_no: string
           stop_id: string | null
           total_fee: number
@@ -319,6 +380,7 @@ export type Database = {
           parent_phone?: string | null
           phone?: string | null
           photo_url?: string | null
+          qr_token?: string
           roll_no: string
           stop_id?: string | null
           total_fee?: number
@@ -334,6 +396,7 @@ export type Database = {
           parent_phone?: string | null
           phone?: string | null
           photo_url?: string | null
+          qr_token?: string
           roll_no?: string
           stop_id?: string | null
           total_fee?: number
@@ -436,7 +499,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "staff"
+      app_role: "admin" | "staff" | "driver"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -564,7 +627,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "staff"],
+      app_role: ["admin", "staff", "driver"],
     },
   },
 } as const

@@ -9,26 +9,38 @@ import {
   Menu,
   Inbox,
   Receipt,
+  ScanLine,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCurrentUser, useUserRoles } from "@/lib/use-role";
 
 const nav = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/students", label: "Students", icon: Users },
-  { to: "/fees", label: "Fees Collection", icon: Receipt },
-  { to: "/requests", label: "Requests", icon: Inbox },
-  { to: "/routes", label: "Routes & Stops", icon: MapPin },
-  { to: "/buses", label: "Buses", icon: Bus },
-  { to: "/staff", label: "Staff", icon: ShieldCheck },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, admin: false },
+  { to: "/students", label: "Students", icon: Users, admin: false },
+  { to: "/fees", label: "Fees Collection", icon: Receipt, admin: false },
+  { to: "/requests", label: "Requests", icon: Inbox, admin: false },
+  { to: "/routes", label: "Routes & Stops", icon: MapPin, admin: false },
+  { to: "/buses", label: "Buses", icon: Bus, admin: false },
+  { to: "/staff", label: "Staff", icon: ShieldCheck, admin: false },
+  { to: "/attendance", label: "Bus Attendance", icon: ScanLine, admin: false },
+] as const;
+
+const driverNav = [
+  { to: "/attendance/scan", label: "Scan QR", icon: ScanLine },
+  { to: "/attendance", label: "Today's Attendance", icon: LayoutDashboard },
 ] as const;
 
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [open, setOpen] = useState(false);
+  const { user } = useCurrentUser();
+  const roles = useUserRoles(user?.id);
+  const isDriverOnly = !!roles && roles.length > 0 && roles.every((r) => r === "driver");
+  const items = isDriverOnly ? driverNav : nav;
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -37,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const NavItems = () => (
     <>
-      {nav.map((n) => {
+      {items.map((n) => {
         const Icon = n.icon;
         const active = pathname === n.to || pathname.startsWith(n.to + "/");
         return (
@@ -62,7 +74,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-muted/30">
-      {/* Sidebar desktop */}
       <aside className="hidden w-64 shrink-0 flex-col border-r bg-card md:flex">
         <div className="border-b px-5 py-4">
           <div className="flex items-center gap-2">
@@ -80,7 +91,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      {/* Mobile header */}
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b bg-card px-4 py-3 md:hidden">
           <div className="flex items-center gap-2">

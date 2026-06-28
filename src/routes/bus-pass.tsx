@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bus, Download, Printer, ImageDown, Loader2 } from "lucide-react";
+import { Download, Printer, ImageDown, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { BusPassCard, type BusPassData } from "@/components/bus-pass-card";
+import { CollegeLogo } from "@/components/college-logo";
 import { generateBusPassPdf } from "@/lib/bus-pass-pdf";
+
 
 export const Route = createFileRoute("/bus-pass")({
   head: () => ({ meta: [
@@ -68,15 +70,14 @@ function PublicBusPass() {
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background">
       <header className="border-b bg-card">
         <div className="mx-auto max-w-3xl px-4 py-4 flex items-center gap-3">
-          <div className="h-11 w-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
-            <Bus className="h-5 w-5" />
-          </div>
+          <CollegeLogo className="h-14 w-14" />
           <div className="flex-1">
             <h1 className="text-base sm:text-lg font-bold leading-tight">THIAGARAJAR POLYTECHNIC COLLEGE</h1>
             <p className="text-xs text-muted-foreground">Salem – 636005 · Transport Bus Pass · AY {new Date().getFullYear()}</p>
           </div>
         </div>
       </header>
+
 
       <main className="mx-auto max-w-3xl px-4 py-8 space-y-6">
         {!pass && (

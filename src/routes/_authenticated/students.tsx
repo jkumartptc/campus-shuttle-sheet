@@ -79,6 +79,11 @@ function StudentsPage() {
     setPhotoPreview(f ? URL.createObjectURL(f) : null);
   };
 
+  const clearPhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview(null);
+  };
+
   const submit = async () => {
     if (!form.roll_no || !form.name) return toast.error("Roll no and name required");
     setUploading(true);

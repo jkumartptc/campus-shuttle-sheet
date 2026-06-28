@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { inr, fmtDate } from "@/lib/format";
 import { generateReceiptPdf } from "@/lib/receipt";
 import { toast } from "sonner";
-import { ArrowLeft, Download, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Plus, Trash2, X } from "lucide-react";
 import { useCurrentUser, useIsAdmin } from "@/lib/use-role";
 
 export const Route = createFileRoute("/_authenticated/students/$id")({

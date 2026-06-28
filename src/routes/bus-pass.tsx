@@ -188,9 +188,8 @@ function PublicBusPass() {
                   <h2 className="font-semibold text-lg">Instructions</h2>
                 </div>
                 <ul className="space-y-2.5 text-sm">
-                  {[
+                {[
                     "Enter your valid register number and mobile number.",
-                    "Bus pass is available only for students with paid transport fees.",
                     "Your bus pass contains a unique QR code.",
                     "Show this pass to the driver and scan during boarding.",
                     "Do not share your QR code with others.",

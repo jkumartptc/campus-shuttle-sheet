@@ -297,3 +297,4 @@ function Stat({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+

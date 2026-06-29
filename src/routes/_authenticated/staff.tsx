@@ -118,10 +118,6 @@ function StaffPage() {
                         </Select>
                       ) : null}
                     </TableCell>
-                  </TableRow>
-                );
-              })}
-                    </TableCell>
                     <TableCell className="text-right">
                       {isAdmin && r.id !== user?.id ? (
                         <Button

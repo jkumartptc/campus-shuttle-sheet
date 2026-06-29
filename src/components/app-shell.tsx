@@ -38,6 +38,10 @@ const driverNav = [
   { to: "/attendance", label: "Today's Attendance", icon: LayoutDashboard },
 ] as const;
 
+const accountsNav = [
+  { to: "/fees", label: "Fees Collection", icon: Receipt },
+] as const;
+
 export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -45,7 +49,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useCurrentUser();
   const roles = useUserRoles(user?.id);
   const isDriverOnly = !!roles && roles.length > 0 && roles.every((r) => r === "driver");
-  const items = isDriverOnly ? driverNav : nav;
+  const isAccountsOnly = !!roles && roles.length > 0 && roles.every((r) => r === "accounts");
+  const items = isDriverOnly ? driverNav : isAccountsOnly ? accountsNav : nav;
 
   const signOut = async () => {
     await supabase.auth.signOut();

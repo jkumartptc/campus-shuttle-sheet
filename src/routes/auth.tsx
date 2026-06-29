@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { CollegeLogo } from "@/components/college-logo";
+import { primaryRole, landingPathForRole, type AppRole } from "@/lib/use-role";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -20,6 +21,13 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+async function redirectByRole(userId: string, navigate: ReturnType<typeof useNavigate>) {
+  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+  const roles = ((data ?? []) as { role: AppRole }[]).map((r) => r.role);
+  const to = landingPathForRole(primaryRole(roles));
+  navigate({ to, replace: true });
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -29,18 +37,19 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/dashboard", replace: true });
+      if (data.user) void redirectByRole(data.user.id, navigate);
     });
   }, [navigate]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Signed in");
-    navigate({ to: "/dashboard", replace: true });
+    if (data.user) await redirectByRole(data.user.id, navigate);
+    else navigate({ to: "/dashboard", replace: true });
   };
 
   const handleSignUp = async (e: React.FormEvent) => {

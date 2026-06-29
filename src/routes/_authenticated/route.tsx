@@ -28,12 +28,11 @@ function AuthenticatedLayout() {
     }
   }, [roles, pathname, navigate]);
 
-  const role = roles ? primaryRole(roles) : null;
-  const allowed = roles ? isPathAllowedForRole(pathname, role) : true;
+  const allowed = roles ? isPathAllowedForRole(pathname, primaryRole(roles)) : true;
 
   return (
     <AppShell>
-      {roles && allowed ? <Outlet /> : roles ? null : <Outlet />}
+      {allowed ? <Outlet /> : null}
     </AppShell>
   );
 }

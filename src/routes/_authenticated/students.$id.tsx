@@ -175,6 +175,11 @@ function StudentDetail() {
               </div>
               <input type="file" accept="image/*" capture="environment" className="hidden" onChange={onPhotoUpload} disabled={uploadingPhoto} />
             </label>
+            <WebcamCapture
+              onCapture={(f) => uploadPhotoFile(f)}
+              title="Capture student photo"
+              trigger={<button type="button" className="text-[11px] text-primary hover:underline">Use webcam</button>}
+            />
             {photoUrl && (
               <button
                 type="button"

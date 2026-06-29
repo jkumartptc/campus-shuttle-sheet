@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { Plus, Search, X, Camera, FileDown, QrCode } from "lucide-react";
 import QRCode from "qrcode";
 import { generateStudentPdf } from "@/lib/student-pdf";
+import { normalizeImageFile } from "@/lib/image-normalize";
+import { WebcamCapture } from "@/components/webcam-capture";
 
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — Transport Admin" }] }),
@@ -65,15 +67,10 @@ function StudentsPage() {
     photoInputRef.current?.click();
   };
 
-  const onCapturePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    const r = pendingStudent.current;
-    e.target.value = "";
-    pendingStudent.current = null;
-    if (!file || !r) return;
-    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
-    const ext = file.name.split(".").pop() || "jpg";
-    const path = `${crypto.randomUUID()}.${ext}`;
+  const savePhotoForRow = async (rawFile: File, r: Row) => {
+    if (rawFile.size > 10 * 1024 * 1024) return toast.error("Photo must be under 10 MB");
+    const file = await normalizeImageFile(rawFile);
+    const path = `${crypto.randomUUID()}.jpg`;
     const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
     if (upErr) return toast.error(upErr.message);
     if (r.photo_url) {
@@ -83,6 +80,15 @@ function StudentsPage() {
     if (error) return toast.error(error.message);
     toast.success(`Photo saved for ${r.name}`);
     load();
+  };
+
+  const onCapturePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const r = pendingStudent.current;
+    e.target.value = "";
+    pendingStudent.current = null;
+    if (!file || !r) return;
+    await savePhotoForRow(file, r);
   };
 
   const load = async () => {
@@ -118,11 +124,16 @@ function StudentsPage() {
     setForm((f) => ({ ...f, stop_id, total_fee: s ? String(s.fare) : f.total_fee }));
   };
 
+  const setPhoto = async (f: File | null) => {
+    if (f && f.size > 10 * 1024 * 1024) { toast.error("Photo must be under 10 MB"); return; }
+    const normalized = f ? await normalizeImageFile(f) : null;
+    setPhotoFile(normalized);
+    setPhotoPreview(normalized ? URL.createObjectURL(normalized) : null);
+  };
+
   const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
-    if (f && f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
-    setPhotoFile(f);
-    setPhotoPreview(f ? URL.createObjectURL(f) : null);
+    setPhoto(f);
   };
 
   const clearPhoto = () => {
@@ -287,7 +298,10 @@ function StudentsPage() {
                   )}
                   <div className="flex flex-col gap-2 flex-1">
                     <Input type="file" accept="image/*" capture="environment" onChange={onPhotoChange} />
-                    <p className="text-[11px] text-muted-foreground">On mobile, this opens the camera. On desktop, pick a file.</p>
+                    <div className="flex items-center gap-2">
+                      <WebcamCapture onCapture={(f) => setPhoto(f)} title="Capture student photo" />
+                      <p className="text-[11px] text-muted-foreground">Mobile opens camera; desktop: pick file or use Webcam.</p>
+                    </div>
                   </div>
                 </div>
               </div>

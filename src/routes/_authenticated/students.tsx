@@ -375,10 +375,20 @@ function StudentsPage() {
                           size="sm"
                           variant="ghost"
                           onClick={() => takePhotoFor(r)}
-                          title={r.photo_url ? "Replace photo" : "Take photo"}
+                          title={r.photo_url ? "Replace photo (camera/file)" : "Take photo (camera/file)"}
                         >
                           <Camera className="h-4 w-4" />
                         </Button>
+                        <WebcamCapture
+                          onCapture={(f) => savePhotoForRow(f, r)}
+                          title={`Capture photo — ${r.name}`}
+                          trigger={
+                            <Button size="sm" variant="ghost" title="Capture from webcam">
+                              <Camera className="h-4 w-4 text-primary" />
+                            </Button>
+                          }
+                        />
+
                         <Button
                           size="sm"
                           variant="ghost"

@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { Plus, Search, X, Camera, FileDown, QrCode } from "lucide-react";
 import QRCode from "qrcode";
 import { generateStudentPdf } from "@/lib/student-pdf";
+import { normalizeImageFile } from "@/lib/image-normalize";
+import { WebcamCapture } from "@/components/webcam-capture";
 
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — Transport Admin" }] }),
@@ -65,15 +67,10 @@ function StudentsPage() {
     photoInputRef.current?.click();
   };
 
-  const onCapturePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    const r = pendingStudent.current;
-    e.target.value = "";
-    pendingStudent.current = null;
-    if (!file || !r) return;
-    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
-    const ext = file.name.split(".").pop() || "jpg";
-    const path = `${crypto.randomUUID()}.${ext}`;
+  const savePhotoForRow = async (rawFile: File, r: Row) => {
+    if (rawFile.size > 10 * 1024 * 1024) return toast.error("Photo must be under 10 MB");
+    const file = await normalizeImageFile(rawFile);
+    const path = `${crypto.randomUUID()}.jpg`;
     const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
     if (upErr) return toast.error(upErr.message);
     if (r.photo_url) {
@@ -83,6 +80,15 @@ function StudentsPage() {
     if (error) return toast.error(error.message);
     toast.success(`Photo saved for ${r.name}`);
     load();
+  };
+
+  const onCapturePhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const r = pendingStudent.current;
+    e.target.value = "";
+    pendingStudent.current = null;
+    if (!file || !r) return;
+    await savePhotoForRow(file, r);
   };
 
   const load = async () => {

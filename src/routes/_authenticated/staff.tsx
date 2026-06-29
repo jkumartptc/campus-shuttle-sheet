@@ -1,14 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useCurrentUser, useIsAdmin, type AppRole } from "@/lib/use-role";
-import { ShieldCheck, User as UserIcon } from "lucide-react";
+import { deleteStaffUser } from "@/lib/staff-admin.functions";
+import { ShieldCheck, Trash2, User as UserIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/staff")({
   head: () => ({ meta: [{ title: "Staff — Transport Admin" }] }),
@@ -21,6 +27,9 @@ function StaffPage() {
   const { user } = useCurrentUser();
   const isAdmin = useIsAdmin(user?.id);
   const [rows, setRows] = useState<any[]>([]);
+  const [toDelete, setToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const deleteFn = useServerFn(deleteStaffUser);
 
   const load = useCallback(async () => {
     const { data: profiles } = await supabase.from("profiles").select("id, full_name, email, created_at").order("created_at");
@@ -48,6 +57,21 @@ function StaffPage() {
     load();
   };
 
+  const confirmDelete = async () => {
+    if (!toDelete) return;
+    setDeleting(true);
+    try {
+      await deleteFn({ data: { userId: toDelete.id } });
+      toast.success(`Deleted ${toDelete.name}`);
+      setToDelete(null);
+      load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to delete user");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -62,10 +86,10 @@ function StaffPage() {
         <CardContent className="p-0">
           <Table>
             <TableHeader><TableRow>
-              <TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead className="text-right">Change role</TableHead>
+              <TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead className="text-right">Change role</TableHead><TableHead className="text-right">Delete</TableHead>
             </TableRow></TableHeader>
             <TableBody>
-              {rows.length === 0 && <TableRow><TableCell colSpan={4} className="py-6 text-center text-muted-foreground">No staff yet.</TableCell></TableRow>}
+              {rows.length === 0 && <TableRow><TableCell colSpan={5} className="py-6 text-center text-muted-foreground">No staff yet.</TableCell></TableRow>}
               {rows.map((r) => {
                 const current: AppRole[] = r.roles;
                 const primary: AppRole = current.includes("admin") ? "admin"
@@ -94,6 +118,18 @@ function StaffPage() {
                         </Select>
                       ) : null}
                     </TableCell>
+                    <TableCell className="text-right">
+                      {isAdmin && r.id !== user?.id ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setToDelete({ id: r.id, name: r.full_name ?? r.email ?? "this user" })}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      ) : null}
+                    </TableCell>
                   </TableRow>
                 );
               })}
@@ -101,6 +137,23 @@ function StaffPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {toDelete?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the user account, their roles, and their profile. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

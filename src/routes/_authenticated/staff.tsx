@@ -57,6 +57,21 @@ function StaffPage() {
     load();
   };
 
+  const confirmDelete = async () => {
+    if (!toDelete) return;
+    setDeleting(true);
+    try {
+      await deleteFn({ data: { userId: toDelete.id } });
+      toast.success(`Deleted ${toDelete.name}`);
+      setToDelete(null);
+      load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to delete user");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -71,10 +86,10 @@ function StaffPage() {
         <CardContent className="p-0">
           <Table>
             <TableHeader><TableRow>
-              <TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead className="text-right">Change role</TableHead>
+              <TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead className="text-right">Change role</TableHead><TableHead className="text-right">Delete</TableHead>
             </TableRow></TableHeader>
             <TableBody>
-              {rows.length === 0 && <TableRow><TableCell colSpan={4} className="py-6 text-center text-muted-foreground">No staff yet.</TableCell></TableRow>}
+              {rows.length === 0 && <TableRow><TableCell colSpan={5} className="py-6 text-center text-muted-foreground">No staff yet.</TableCell></TableRow>}
               {rows.map((r) => {
                 const current: AppRole[] = r.roles;
                 const primary: AppRole = current.includes("admin") ? "admin"
@@ -106,10 +121,43 @@ function StaffPage() {
                   </TableRow>
                 );
               })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {isAdmin && r.id !== user?.id ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => setToDelete({ id: r.id, name: r.full_name ?? r.email ?? "this user" })}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      ) : null}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {toDelete?.name}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the user account, their roles, and their profile. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

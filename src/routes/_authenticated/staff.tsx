@@ -1,14 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
+import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useCurrentUser, useIsAdmin, type AppRole } from "@/lib/use-role";
-import { ShieldCheck, User as UserIcon } from "lucide-react";
+import { deleteStaffUser } from "@/lib/staff-admin.functions";
+import { ShieldCheck, Trash2, User as UserIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/staff")({
   head: () => ({ meta: [{ title: "Staff — Transport Admin" }] }),
@@ -21,6 +27,9 @@ function StaffPage() {
   const { user } = useCurrentUser();
   const isAdmin = useIsAdmin(user?.id);
   const [rows, setRows] = useState<any[]>([]);
+  const [toDelete, setToDelete] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const deleteFn = useServerFn(deleteStaffUser);
 
   const load = useCallback(async () => {
     const { data: profiles } = await supabase.from("profiles").select("id, full_name, email, created_at").order("created_at");

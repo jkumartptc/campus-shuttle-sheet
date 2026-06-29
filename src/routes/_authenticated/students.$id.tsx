@@ -14,6 +14,8 @@ import { generateReceiptPdf } from "@/lib/receipt";
 import { toast } from "sonner";
 import { ArrowLeft, Download, Plus, Trash2, X } from "lucide-react";
 import { useCurrentUser, useIsAdmin } from "@/lib/use-role";
+import { normalizeImageFile } from "@/lib/image-normalize";
+import { WebcamCapture } from "@/components/webcam-capture";
 
 export const Route = createFileRoute("/_authenticated/students/$id")({
   head: () => ({ meta: [{ title: "Student — Transport Admin" }] }),
@@ -63,13 +65,11 @@ function StudentDetail() {
     load();
   };
 
-  const onPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return toast.error("Photo must be under 5 MB");
+  const uploadPhotoFile = async (rawFile: File) => {
+    if (rawFile.size > 10 * 1024 * 1024) return toast.error("Photo must be under 10 MB");
     setUploadingPhoto(true);
-    const ext = file.name.split(".").pop() || "jpg";
-    const path = `${crypto.randomUUID()}.${ext}`;
+    const file = await normalizeImageFile(rawFile);
+    const path = `${crypto.randomUUID()}.jpg`;
     const { error: upErr } = await supabase.storage.from("student-photos").upload(path, file, { contentType: file.type });
     if (upErr) { setUploadingPhoto(false); return toast.error(upErr.message); }
     if (student?.photo_url) {
@@ -80,6 +80,13 @@ function StudentDetail() {
     if (error) return toast.error(error.message);
     toast.success("Photo updated");
     load();
+  };
+
+  const onPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    await uploadPhotoFile(file);
   };
 
   if (!student) return <div className="text-muted-foreground">Loading…</div>;

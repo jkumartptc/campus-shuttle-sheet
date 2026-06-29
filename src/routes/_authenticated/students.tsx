@@ -124,11 +124,16 @@ function StudentsPage() {
     setForm((f) => ({ ...f, stop_id, total_fee: s ? String(s.fare) : f.total_fee }));
   };
 
+  const setPhoto = async (f: File | null) => {
+    if (f && f.size > 10 * 1024 * 1024) { toast.error("Photo must be under 10 MB"); return; }
+    const normalized = f ? await normalizeImageFile(f) : null;
+    setPhotoFile(normalized);
+    setPhotoPreview(normalized ? URL.createObjectURL(normalized) : null);
+  };
+
   const onPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null;
-    if (f && f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5 MB"); return; }
-    setPhotoFile(f);
-    setPhotoPreview(f ? URL.createObjectURL(f) : null);
+    setPhoto(f);
   };
 
   const clearPhoto = () => {
@@ -293,7 +298,10 @@ function StudentsPage() {
                   )}
                   <div className="flex flex-col gap-2 flex-1">
                     <Input type="file" accept="image/*" capture="environment" onChange={onPhotoChange} />
-                    <p className="text-[11px] text-muted-foreground">On mobile, this opens the camera. On desktop, pick a file.</p>
+                    <div className="flex items-center gap-2">
+                      <WebcamCapture onCapture={(f) => setPhoto(f)} title="Capture student photo" />
+                      <p className="text-[11px] text-muted-foreground">Mobile opens camera; desktop: pick file or use Webcam.</p>
+                    </div>
                   </div>
                 </div>
               </div>

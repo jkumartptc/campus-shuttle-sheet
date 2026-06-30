@@ -4,7 +4,6 @@ import type { BusPassData } from "@/components/bus-pass-card";
 import { fmtAcademicYear } from "@/components/bus-pass-card";
 import { collegeLogoUrl } from "@/components/college-logo";
 
-
 async function imgToDataUrl(url: string): Promise<string | null> {
   try {
     const res = await fetch(url);
@@ -18,95 +17,151 @@ async function imgToDataUrl(url: string): Promise<string | null> {
   } catch { return null; }
 }
 
+function fmtDate(d: string) {
+  if (!d) return "—";
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return d;
+  const dd = String(dt.getDate()).padStart(2, "0");
+  const mm = String(dt.getMonth() + 1).padStart(2, "0");
+  return `${dd}-${mm}-${dt.getFullYear()}`;
+}
+
 export async function generateBusPassPdf(data: BusPassData, photoUrl: string | null, action: "print" | "download" = "download") {
   // A5 portrait: 148 x 210 mm
   const doc = new jsPDF({ unit: "mm", format: "a5", orientation: "portrait" });
   const W = 148;
+  const H = 210;
+  const NAVY: [number, number, number] = [11, 42, 107];
+
   // Header band
-  doc.setFillColor(34, 84, 166);
-  doc.rect(0, 0, W, 28, "F");
-  // Logo
+  doc.setFillColor(...NAVY);
+  doc.rect(0, 0, W, 34, "F");
   const logoData = await imgToDataUrl(collegeLogoUrl);
   if (logoData) {
-    try { doc.addImage(logoData, "JPEG", 4, 3, 22, 22); } catch { /* */ }
+    try {
+      // white circle behind logo
+      doc.setFillColor(255, 255, 255);
+      doc.circle(15, 17, 11, "F");
+      doc.addImage(logoData, "JPEG", 5.5, 7.5, 19, 19);
+    } catch { /* */ }
   }
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("THIAGARAJAR POLYTECHNIC COLLEGE", W / 2, 10, { align: "center" });
+  doc.setFontSize(12.5);
+  doc.text("THIAGARAJAR POLYTECHNIC COLLEGE", 30, 11);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.text("Salem – 636005", W / 2, 15, { align: "center" });
+  doc.setFontSize(8.5);
+  doc.text("SALEM – 636 005", 30, 16);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
-  doc.text("TRANSPORT BUS PASS", W / 2, 21, { align: "center" });
-  doc.setFontSize(7);
+  doc.text("TRANSPORT BUS PASS", 30, 22);
   doc.setFont("helvetica", "normal");
-  doc.text(`AY ${fmtAcademicYear(data.academic_year)}`, W - 4, 26, { align: "right" });
+  doc.setFontSize(8);
+  doc.text(`ACADEMIC YEAR ${fmtAcademicYear(data.academic_year)}`, 30, 27);
 
+  // ESTD label
+  doc.setTextColor(60, 60, 60);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7);
+  doc.text("ESTD. 1958", 7, 39);
 
   // Photo
   const photoData = photoUrl ? await imgToDataUrl(photoUrl) : null;
+  const photoX = 7, photoY = 41, photoW = 30, photoH = 38;
   if (photoData) {
-    try { doc.addImage(photoData, "JPEG", 8, 30, 28, 34); } catch { /* */ }
-  } else {
-    doc.setDrawColor(200); doc.rect(8, 30, 28, 34);
+    try { doc.addImage(photoData, "JPEG", photoX, photoY, photoW, photoH); } catch { /* */ }
   }
+  doc.setDrawColor(200);
+  doc.rect(photoX, photoY, photoW, photoH);
 
-  // Details
+  // Student Name (large)
   doc.setTextColor(20);
-  doc.setFontSize(9);
-  let y = 32;
-  const rows: Array<[string, string]> = [
-    ["Name", data.student_name],
-    ["Reg No", data.roll_no],
-    ["Dept", data.department ?? "—"],
-    ["Year/Sem", data.year ?? "—"],
-    ["Route", data.route_name ?? "—"],
-    ["Boarding", data.boarding_point ?? "—"],
-    ["Bus No", data.bus_number ?? "—"],
-    ["Mobile", data.phone ?? "—"],
-  ];
-  for (const [k, v] of rows) {
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(110);
-    doc.text(k, 40, y);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(20);
-    doc.text(String(v).slice(0, 40), 60, y);
-    y += 4.2;
-  }
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.text(String(data.student_name).toUpperCase(), 40, 46);
 
-  // Validity + status
-  y = 70;
-  doc.setDrawColor(220); doc.line(8, y, W - 8, y);
-  y += 5;
-  doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(80);
-  doc.text(`Valid for Full Academic Year: ${fmtAcademicYear(data.academic_year)}`, 8, y);
+  // Status badge top right
+  const statusText = (data.pass_status === "fee_pending" ? "active" : data.pass_status).toUpperCase();
+  doc.setFillColor(220, 252, 231);
+  doc.setDrawColor(110, 200, 140);
+  doc.roundedRect(W - 28, 39, 22, 6, 1.5, 1.5, "FD");
+  doc.setTextColor(20, 100, 60);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(7.5);
+  doc.text(statusText, W - 17, 43, { align: "center" });
+
+  // Details rows
+  doc.setFontSize(8.5);
+  let y = 52;
+  const rows: Array<[string, string]> = [
+    ["Register No.", data.roll_no],
+    ["Department", (data.department ?? "—").toUpperCase()],
+    ["Year / Sem", data.year ?? "—"],
+    ["Route", data.route_name ?? "—"],
+    ["Boarding Point", data.boarding_point ?? "—"],
+    ["Mobile Number", data.phone ?? "—"],
+  ];
+  if (data.blood_group) rows.push(["Blood Group", data.blood_group]);
+  for (const [k, v] of rows) {
+    doc.setFont("helvetica", "normal"); doc.setTextColor(95);
+    doc.text(k, 40, y);
+    doc.setTextColor(120); doc.text(":", 68, y);
+    doc.setFont("helvetica", "bold"); doc.setTextColor(20);
+    doc.text(String(v).slice(0, 26), 71, y);
+    y += 5;
+  }
 
   // QR
   const qr = await QRCode.toDataURL(data.qr_token, { width: 600, margin: 1, errorCorrectionLevel: "M" });
-  const qrSize = 70;
-  const qrX = (W - qrSize) / 2;
-  const qrY = y + 6;
-  doc.setDrawColor(200);
+  const qrSize = 36;
+  const qrX = W - qrSize - 8;
+  const qrY = 50;
+  doc.setDrawColor(180);
+  doc.setLineWidth(0.6);
   doc.rect(qrX - 1.5, qrY - 1.5, qrSize + 3, qrSize + 3);
   doc.addImage(qr, "PNG", qrX, qrY, qrSize, qrSize);
+  doc.setLineWidth(0.2);
 
-  y = y + 6 + qrSize + 5;
-  doc.setFont("helvetica", "bold");
+  // Pass ID under QR
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7); doc.setTextColor(110);
+  doc.text("PASS ID", qrX + qrSize / 2, qrY + qrSize + 5, { align: "center" });
+  doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); doc.setTextColor(20);
+  doc.text(data.pass_id, qrX + qrSize / 2, qrY + qrSize + 9, { align: "center" });
+
+  // Validity + Fee Status
+  const boxY = Math.max(y + 4, 96);
+  const boxH = 14;
+  doc.setFillColor(236, 253, 245);
+  doc.setDrawColor(167, 243, 208);
+  doc.roundedRect(7, boxY, W - 14, boxH, 2, 2, "FD");
+  doc.setDrawColor(167, 243, 208);
+  doc.line(W / 2, boxY + 2, W / 2, boxY + boxH - 2);
+  doc.setTextColor(80); doc.setFont("helvetica", "bold"); doc.setFontSize(7);
+  doc.text("VALIDITY", 12, boxY + 5);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(20);
+  doc.text(`${fmtDate(data.valid_from)} to ${fmtDate(data.valid_to)}`, 12, boxY + 10);
+  const feePaid = (data.fee_status ?? "").toLowerCase() === "paid";
+  doc.setTextColor(80); doc.setFont("helvetica", "bold"); doc.setFontSize(7);
+  doc.text("FEE STATUS", W / 2 + 5, boxY + 5);
+  if (feePaid) { doc.setTextColor(20, 110, 60); } else { doc.setTextColor(200, 100, 0); }
   doc.setFontSize(9);
-  doc.setTextColor(20);
-  doc.text(`Pass ID: ${data.pass_id}`, W / 2, y, { align: "center" });
-  y += 5;
-  doc.setFontSize(8);
-  const printStatus = data.pass_status === "fee_pending" ? "active" : data.pass_status;
-  const statusLabel = printStatus.toUpperCase();
-  doc.text(`Status: ${statusLabel}`, W / 2, y, { align: "center" });
+  doc.text((data.fee_status ?? "—").toUpperCase(), W / 2 + 5, boxY + 10);
 
-  // Footer
-  doc.setFontSize(8); doc.setTextColor(100);
-  doc.text("Show this QR Code while boarding the bus.", W / 2, 205, { align: "center" });
+  // Instruction
+  const insY = boxY + boxH + 3;
+  doc.setFillColor(240, 249, 255);
+  doc.setDrawColor(186, 230, 253);
+  doc.roundedRect(7, insY, W - 14, 13, 2, 2, "FD");
+  doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(60);
+  doc.text("This pass is valid only for the above route and boarding point.", W / 2, insY + 5.5, { align: "center" });
+  doc.text("Show this QR code to the driver during boarding.", W / 2, insY + 10, { align: "center" });
+
+  // Footer band
+  const footY = H - 14;
+  doc.setFillColor(...NAVY);
+  doc.rect(0, footY, W, 14, "F");
+  doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(8.5);
+  doc.text("SAFE TRAVEL   |   REACH ON TIME   |   BE RESPONSIBLE", W / 2, footY + 8.5, { align: "center" });
 
   const filename = `bus-pass-${data.roll_no}.pdf`;
   if (action === "download") doc.save(filename);

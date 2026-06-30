@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Camera, StopCircle, CheckCircle2 } from "lucide-react";
 import { useCurrentUser } from "@/lib/use-role";
-import { beep } from "@/lib/beep";
+import { beep, vibrate, preloadBeeps, primeAudio } from "@/lib/beep";
 import { queueAttendance, flushPending, getPending } from "@/lib/attendance-offline";
 
 export const Route = createFileRoute("/_authenticated/attendance/scan")({

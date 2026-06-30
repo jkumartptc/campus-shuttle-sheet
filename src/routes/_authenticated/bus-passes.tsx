@@ -155,8 +155,21 @@ function BusPassAdmin() {
         </div>
         <div className="flex gap-2">
           <Button onClick={openIssue}>Issue Pass</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              const url = `${window.location.origin}/bus-pass`;
+              navigator.clipboard.writeText(url).then(
+                () => toast.success("Public bus pass link copied", { description: url }),
+                () => toast.error("Could not copy link"),
+              );
+            }}
+          >
+            <LinkIcon className="mr-2 h-4 w-4" />Copy Student Link
+          </Button>
           <Button variant="outline" onClick={exportExcel}><FileSpreadsheet className="mr-2 h-4 w-4" />Export Excel</Button>
         </div>
+
       </div>
 
       <Tabs defaultValue="passes">

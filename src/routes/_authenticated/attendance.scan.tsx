@@ -159,8 +159,8 @@ function ScanPage() {
       const { error: insErr } = await supabase.from("attendance").insert(rec);
       if (insErr) {
         if (insErr.code === "23505") {
-          beep("err");
-          toast.warning(`${s.name} already marked for ${trip}`);
+          beep("duplicate"); vibrate([100, 60, 100]);
+          toast.warning(`Attendance Already Marked — ${s.name} (${trip})`);
           return;
         }
         // Likely network — queue

@@ -203,30 +203,32 @@ function ScanPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Badge variant={online ? "default" : "destructive"}>{online ? "Online" : "Offline"}</Badge>
-          {pending > 0 && <Badge variant="secondary">Pending sync: {pending}</Badge>}
-        </div>
+      {/* Scanner action — pinned to top for fast mobile access */}
+      <div className="flex flex-col gap-3">
         {!scanning ? (
-          <Button size="lg" className="h-16 px-8 text-lg w-full sm:w-auto" onClick={start}>
+          <Button size="lg" className="h-16 px-8 text-lg w-full" onClick={start}>
             <Camera className="mr-2 h-6 w-6" /> Scan QR Code
           </Button>
         ) : (
-          <Button size="lg" variant="destructive" className="h-16 px-8 text-lg w-full sm:w-auto" onClick={stop}>
+          <Button size="lg" variant="destructive" className="h-16 px-8 text-lg w-full" onClick={stop}>
             <StopCircle className="mr-2 h-6 w-6" /> Stop scanning
           </Button>
         )}
-      </div>
 
-      {scanning && (
-        <Card>
-          <CardContent className="p-2">
-            <div id="qr-reader" className="mx-auto w-full max-w-sm" />
-            <p className="mt-2 text-center text-xs text-muted-foreground">Point the camera at the student's QR code.</p>
-          </CardContent>
-        </Card>
-      )}
+        {scanning && (
+          <Card>
+            <CardContent className="p-2">
+              <div id="qr-reader" className="mx-auto w-full max-w-sm" />
+              <p className="mt-2 text-center text-xs text-muted-foreground">Point the camera at the student's QR code.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant={online ? "default" : "destructive"}>{online ? "Online" : "Offline"}</Badge>
+          {pending > 0 && <Badge variant="secondary">Pending sync: {pending}</Badge>}
+        </div>
+      </div>
 
       {last && (
         <Card className="border-emerald-500/40">

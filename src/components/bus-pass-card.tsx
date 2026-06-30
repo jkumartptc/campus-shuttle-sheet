@@ -24,7 +24,7 @@ export type BusPassData = {
 };
 
 export function statusBadgeClass(status: string) {
-  switch (status) {
+  switch (status.trim().toLowerCase().replace(/[\s-]+/g, "_")) {
     case "active": return "bg-emerald-100 text-emerald-700 border-emerald-300";
     case "expired": return "bg-red-100 text-red-700 border-red-300";
     case "fee_pending": return "bg-orange-100 text-orange-700 border-orange-300";
@@ -65,8 +65,9 @@ export const BusPassCard = forwardRef<HTMLDivElement, { data: BusPassData; photo
     }, [data.qr_token]);
 
     const photo = photoSignedUrl ?? null;
+    const normalizedPassStatus = data.pass_status.trim().toLowerCase().replace(/[\s-]+/g, "_");
     const printStatus =
-      data.pass_status === "fee_pending" ? "active" : data.pass_status;
+      normalizedPassStatus === "fee_pending" ? "active" : normalizedPassStatus || data.pass_status;
     const statusLabel = printStatus.toUpperCase();
     const feePaid = (data.fee_status ?? "").toLowerCase() === "paid";
 

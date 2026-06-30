@@ -50,7 +50,9 @@ function BusPassAdmin() {
   useEffect(() => { load(); }, [load]);
 
   const filtered = useMemo(() => rows.filter((r) => {
-    if (statusFilter !== "all" && r.pass_status !== statusFilter) return false;
+    if (statusFilter === "fee_pending") {
+      if (r.fee_status === "paid" && r.pass_status !== "fee_pending") return false;
+    } else if (statusFilter !== "all" && r.pass_status !== statusFilter) return false;
     if (!q.trim()) return true;
     const s = q.toLowerCase();
     return (r.students?.name ?? "").toLowerCase().includes(s)
@@ -205,6 +207,11 @@ function BusPassAdmin() {
                         <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase border ${statusBadgeClass(r.pass_status)}`}>
                           {r.pass_status === "fee_pending" ? "FEE PENDING" : r.pass_status}
                         </span>
+                        {r.fee_status !== "paid" && (
+                          <span className="ml-1 text-[10px] px-2 py-0.5 rounded-full uppercase border bg-orange-100 text-orange-700 border-orange-300">
+                            Fee Pending
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-xs">AY {fmtAcademicYear(r.academic_year)}</TableCell>
                       <TableCell className="text-right">

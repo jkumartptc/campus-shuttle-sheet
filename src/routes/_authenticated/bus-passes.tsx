@@ -125,7 +125,7 @@ function BusPassAdmin() {
     const pass_id = `TPT-${ay}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
     const { error } = await supabase.from("bus_pass").upsert({
       student_id: stu.id, pass_id, fee_status: feePaid ? "paid" : "pending",
-      pass_status: feePaid ? "active" : "fee_pending",
+      pass_status: "active",
       academic_year: ay, route_id, boarding_point: boarding, bus_number: bus_no,
     }, { onConflict: "student_id" });
     if (error) return toast.error(error.message);
@@ -271,7 +271,7 @@ function BusPassAdmin() {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">Status will be set to Active only if transport fee is fully paid; otherwise Fee Pending.</p>
+            <p className="text-xs text-muted-foreground">Issued passes remain Active for scanning; pending transport fee is shown as a warning.</p>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIssueOpen(false)}>Cancel</Button>

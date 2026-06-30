@@ -26,6 +26,13 @@ function todayKolkata() {
   return new Date().toLocaleString("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" });
 }
 
+function normalizeStatus(value: unknown) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
+}
+
 function ScanPage() {
   const { user } = useCurrentUser();
   const [scanning, setScanning] = useState(false);
@@ -109,10 +116,12 @@ function ScanPage() {
       toast.error("Invalid Bus Pass");
       return;
     }
-    if (resolved.pass_status === "cancelled") { beep("err"); vibrate(300); toast.error("Bus pass is cancelled"); return; }
-    if (resolved.pass_status === "expired") { beep("err"); vibrate(300); toast.error("Bus pass expired"); return; }
+    const passStatus = normalizeStatus(resolved.pass_status);
+    const feeStatus = normalizeStatus(resolved.fee_status);
+    if (passStatus === "cancelled") { beep("err"); vibrate(300); toast.error("Bus pass is cancelled"); return; }
+    if (passStatus === "expired") { beep("err"); vibrate(300); toast.error("Bus pass expired"); return; }
     if (resolved.valid_to && new Date(resolved.valid_to) < new Date()) { beep("err"); vibrate(300); toast.error("Bus pass validity expired"); return; }
-    const feePending = resolved.fee_status !== "paid" || resolved.pass_status === "fee_pending";
+    const feePending = feeStatus !== "paid" || passStatus === "fee_pending";
     const s: any = {
       id: resolved.student_id, name: resolved.student_name, roll_no: resolved.roll_no,
       department: resolved.department, photo_url: resolved.photo_url,

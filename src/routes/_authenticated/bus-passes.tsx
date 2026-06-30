@@ -50,7 +50,9 @@ function BusPassAdmin() {
   useEffect(() => { load(); }, [load]);
 
   const filtered = useMemo(() => rows.filter((r) => {
-    if (statusFilter !== "all" && r.pass_status !== statusFilter) return false;
+    if (statusFilter === "fee_pending") {
+      if (r.fee_status === "paid" && r.pass_status !== "fee_pending") return false;
+    } else if (statusFilter !== "all" && r.pass_status !== statusFilter) return false;
     if (!q.trim()) return true;
     const s = q.toLowerCase();
     return (r.students?.name ?? "").toLowerCase().includes(s)
@@ -125,7 +127,7 @@ function BusPassAdmin() {
     const pass_id = `TPT-${ay}-${crypto.randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
     const { error } = await supabase.from("bus_pass").upsert({
       student_id: stu.id, pass_id, fee_status: feePaid ? "paid" : "pending",
-      pass_status: feePaid ? "active" : "fee_pending",
+      pass_status: "active",
       academic_year: ay, route_id, boarding_point: boarding, bus_number: bus_no,
     }, { onConflict: "student_id" });
     if (error) return toast.error(error.message);
@@ -205,6 +207,11 @@ function BusPassAdmin() {
                         <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase border ${statusBadgeClass(r.pass_status)}`}>
                           {r.pass_status === "fee_pending" ? "FEE PENDING" : r.pass_status}
                         </span>
+                        {r.fee_status !== "paid" && (
+                          <span className="ml-1 text-[10px] px-2 py-0.5 rounded-full uppercase border bg-orange-100 text-orange-700 border-orange-300">
+                            Fee Pending
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell className="text-xs">AY {fmtAcademicYear(r.academic_year)}</TableCell>
                       <TableCell className="text-right">
@@ -271,7 +278,7 @@ function BusPassAdmin() {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">Status will be set to Active only if transport fee is fully paid; otherwise Fee Pending.</p>
+            <p className="text-xs text-muted-foreground">Issued passes remain Active for scanning; pending transport fee is shown as a warning.</p>
           </div>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setIssueOpen(false)}>Cancel</Button>

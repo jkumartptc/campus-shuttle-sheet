@@ -65,6 +65,7 @@ function ScanPage() {
   };
 
   const start = async () => {
+    primeAudio();
     setScanning(true);
     setTimeout(async () => {
       const el = document.getElementById("qr-reader");

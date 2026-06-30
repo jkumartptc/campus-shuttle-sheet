@@ -183,6 +183,9 @@ function ScanPage() {
     if (offline) {
       beep("warning"); vibrate(150);
       toast.message("Offline Mode — Attendance Saved", { description: s.name });
+    } else if (feePending) {
+      beep("warning"); vibrate([80, 60, 80]);
+      toast.warning(`Attendance Marked — Fee Pending`, { description: s.name });
     } else {
       beep("ok"); vibrate([80, 40, 80]);
       toast.success(`Attendance Marked Successfully — ${s.name}`);

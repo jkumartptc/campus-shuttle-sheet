@@ -1,19 +1,26 @@
-## Plan
+## Plan: Public Bus Pass Download Link
 
-1. **Reproduce the failing scan path**
-   - Use one of the recently issued bus pass QR tokens that is currently stored as `fee_pending`.
-   - Confirm whether the scanner still blocks it, where the message is coming from, and whether attendance is inserted.
+The page already exists at `/bus-pass` (route: `src/routes/bus-pass.tsx`). Students enter Register Number + Mobile and get their pass (view / PDF / print / image). No new page needed — only small enhancements so it's actually usable and shareable.
 
-2. **Fix scanner acceptance rules**
-   - Update Bus Attendance QR validation so `fee_pending` passes are treated as usable for attendance.
-   - Only block truly unusable passes: invalid QR, cancelled pass, expired pass, or date validity expired.
-   - Normalize status casing/spacing so values like `Fee Pending`, `FEE_PENDING`, or `fee_pending` do not trigger a false “not active” result.
+### 1. Make the link easy to share
+- Add a "Bus Pass" quick link / button on the public landing page (`src/routes/index.tsx`) pointing to `/bus-pass`.
+- Add a "Copy public bus pass link" button in the admin Bus Passes screen (`src/routes/_authenticated/bus-passes.tsx`) so staff can share `https://<site>/bus-pass` with students in one click.
 
-3. **Align backend status logic if needed**
-   - If the database helper still returns or enforces old “active only” behavior, update it so issued-but-fee-pending passes resolve correctly for scanner use.
-   - Keep fee status visible as a warning, not a blocker.
+### 2. Align rules with the new attendance policy
+Currently `get_bus_pass_public` rejects a student when `paid < total_fee` with `fee_pending`. Since attendance now allows fee-pending passes, downloads should follow the same rule:
+- Update the `get_bus_pass_public` SQL function to no longer raise `fee_pending`. Issue/return the pass with `fee_status = 'pending'` when fees aren't fully paid, `pass_status = 'active'`.
+- Keep blocking only: student not found, mobile mismatch.
+- Frontend already shows the fee badge, so the student sees pending status clearly on the pass.
 
-4. **Verify end-to-end**
-   - Scan/test with a `fee_pending` pass and confirm attendance is marked with a warning beep/message.
-   - Test cancelled/expired/invalid QR still fail.
-   - Confirm duplicate attendance still shows the duplicate warning and does not insert another record.
+### 3. UX polish on `/bus-pass`
+- Map remaining backend errors to friendlier toasts ("Register number not found", "Mobile number doesn't match our records").
+- Trim/normalize register no and mobile inputs before submitting.
+- No theme / layout changes.
+
+### Files touched
+- `supabase/migrations/<new>.sql` — update `public.get_bus_pass_public`
+- `src/routes/bus-pass.tsx` — friendlier error handling, input trim
+- `src/routes/index.tsx` — add visible "Download Bus Pass" entry
+- `src/routes/_authenticated/bus-passes.tsx` — "Copy public link" button
+
+No other modules affected.

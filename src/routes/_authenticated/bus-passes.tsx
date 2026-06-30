@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Printer, Ban, FileSpreadsheet, FileDown, Eye } from "lucide-react";
+import { Download, Printer, Ban, FileSpreadsheet, FileDown, Eye, Link as LinkIcon } from "lucide-react";
 import { BusPassCard, statusBadgeClass, fmtAcademicYear, type BusPassData } from "@/components/bus-pass-card";
 import { generateBusPassPdf } from "@/lib/bus-pass-pdf";
 import * as XLSX from "xlsx";
@@ -155,8 +155,21 @@ function BusPassAdmin() {
         </div>
         <div className="flex gap-2">
           <Button onClick={openIssue}>Issue Pass</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              const url = `${window.location.origin}/bus-pass`;
+              navigator.clipboard.writeText(url).then(
+                () => toast.success("Public bus pass link copied", { description: url }),
+                () => toast.error("Could not copy link"),
+              );
+            }}
+          >
+            <LinkIcon className="mr-2 h-4 w-4" />Copy Student Link
+          </Button>
           <Button variant="outline" onClick={exportExcel}><FileSpreadsheet className="mr-2 h-4 w-4" />Export Excel</Button>
         </div>
+
       </div>
 
       <Tabs defaultValue="passes">

@@ -41,7 +41,9 @@ function PublicBusPass() {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const submit = async () => {
-    if (!reg.trim() || !mobile.trim()) {
+    const r = reg.trim();
+    const m = mobile.trim();
+    if (!r || !m) {
       toast.error("Enter register number and mobile");
       return;
     }
@@ -49,11 +51,18 @@ function PublicBusPass() {
     setPass(null);
     setPhotoUrl(null);
     const { data, error } = await supabase.rpc("get_bus_pass_public", {
-      p_register_no: reg.trim(),
-      p_mobile: mobile.trim(),
+      p_register_no: r,
+      p_mobile: m,
     });
     setLoading(false);
-    if (error || !data || (Array.isArray(data) && data.length === 0)) {
+    if (error) {
+      const msg = (error.message || "").toLowerCase();
+      if (msg.includes("not_found")) toast.error("Register number not found.");
+      else if (msg.includes("mobile_mismatch")) toast.error("Mobile number doesn't match our records.");
+      else toast.error("Unable to fetch bus pass. Please try again.");
+      return;
+    }
+    if (!data || (Array.isArray(data) && data.length === 0)) {
       toast.error("No bus pass found for the given details.");
       return;
     }
@@ -67,6 +76,7 @@ function PublicBusPass() {
     }
     supabase.rpc("bump_bus_pass_download", { p_qr_token: row.qr_token });
   };
+
 
   const onDownloadPdf = async () => {
     if (!pass) return;

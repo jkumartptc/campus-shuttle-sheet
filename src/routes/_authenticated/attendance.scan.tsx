@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Camera, StopCircle, CheckCircle2 } from "lucide-react";
 import { useCurrentUser } from "@/lib/use-role";
-import { beep } from "@/lib/beep";
+import { beep, vibrate, preloadBeeps, primeAudio } from "@/lib/beep";
 import { queueAttendance, flushPending, getPending } from "@/lib/attendance-offline";
 
 export const Route = createFileRoute("/_authenticated/attendance/scan")({
@@ -48,6 +48,8 @@ function ScanPage() {
     return () => { window.removeEventListener("online", onOnline); window.removeEventListener("offline", onOffline); };
   }, []);
 
+  useEffect(() => { preloadBeeps(); }, []);
+
   useEffect(() => {
     return () => { stop().catch(() => {}); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,6 +65,7 @@ function ScanPage() {
   };
 
   const start = async () => {
+    primeAudio();
     setScanning(true);
     setTimeout(async () => {
       const el = document.getElementById("qr-reader");
@@ -95,20 +98,22 @@ function ScanPage() {
 
   const handleToken = async (token: string) => {
     if (!/^[0-9a-f-]{20,}$/i.test(token)) {
-      beep("err");
-      toast.error("Invalid QR code");
+      beep("err"); vibrate(300);
+      toast.error("Invalid Bus Pass");
       return;
     }
     const { data: rows, error } = await supabase.rpc("resolve_bus_pass_qr", { p_qr_token: token });
     const resolved: any = Array.isArray(rows) ? rows[0] : rows;
     if (error || !resolved) {
-      beep("err");
-      toast.error("Bus pass not found");
+      beep("err"); vibrate(300);
+      toast.error("Invalid Bus Pass");
       return;
     }
-    if (resolved.pass_status === "cancelled") { beep("err"); toast.error("Bus pass is cancelled"); return; }
-    if (resolved.pass_status === "expired") { beep("err"); toast.error("Bus pass expired"); return; }
-    if (resolved.valid_to && new Date(resolved.valid_to) < new Date()) { beep("err"); toast.error("Bus pass validity expired"); return; }
+    if (resolved.pass_status === "cancelled") { beep("err"); vibrate(300); toast.error("Bus pass is cancelled"); return; }
+    if (resolved.pass_status === "expired") { beep("err"); vibrate(300); toast.error("Bus pass expired"); return; }
+    if (resolved.pass_status !== "active") { beep("err"); vibrate(300); toast.error("Bus pass is not active"); return; }
+    if (resolved.fee_status !== "paid") { beep("err"); vibrate(300); toast.error("Transport fee is pending"); return; }
+    if (resolved.valid_to && new Date(resolved.valid_to) < new Date()) { beep("err"); vibrate(300); toast.error("Bus pass validity expired"); return; }
     const s: any = {
       id: resolved.student_id, name: resolved.student_name, roll_no: resolved.roll_no,
       department: resolved.department, photo_url: resolved.photo_url,
@@ -154,8 +159,8 @@ function ScanPage() {
       const { error: insErr } = await supabase.from("attendance").insert(rec);
       if (insErr) {
         if (insErr.code === "23505") {
-          beep("err");
-          toast.warning(`${s.name} already marked for ${trip}`);
+          beep("duplicate"); vibrate([100, 60, 100]);
+          toast.warning(`Attendance Already Marked — ${s.name} (${trip})`);
           return;
         }
         // Likely network — queue
@@ -176,8 +181,13 @@ function ScanPage() {
       route: s.stops?.routes?.name ?? null, stop: s.stops?.name ?? null,
       photoUrl, time: new Date().toLocaleTimeString(), trip, offline,
     });
-    beep("ok");
-    toast.success(`Attendance Marked: ${s.name}${offline ? " (offline)" : ""}`);
+    if (offline) {
+      beep("warning"); vibrate(150);
+      toast.message("Offline Mode — Attendance Saved", { description: s.name });
+    } else {
+      beep("ok"); vibrate([80, 40, 80]);
+      toast.success(`Attendance Marked Successfully — ${s.name}`);
+    }
   };
 
   return (

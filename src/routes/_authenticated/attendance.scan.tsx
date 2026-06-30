@@ -111,9 +111,8 @@ function ScanPage() {
     }
     if (resolved.pass_status === "cancelled") { beep("err"); vibrate(300); toast.error("Bus pass is cancelled"); return; }
     if (resolved.pass_status === "expired") { beep("err"); vibrate(300); toast.error("Bus pass expired"); return; }
-    if (resolved.pass_status !== "active") { beep("err"); vibrate(300); toast.error("Bus pass is not active"); return; }
-    if (resolved.fee_status !== "paid") { beep("err"); vibrate(300); toast.error("Transport fee is pending"); return; }
     if (resolved.valid_to && new Date(resolved.valid_to) < new Date()) { beep("err"); vibrate(300); toast.error("Bus pass validity expired"); return; }
+    const feePending = resolved.fee_status !== "paid" || resolved.pass_status === "fee_pending";
     const s: any = {
       id: resolved.student_id, name: resolved.student_name, roll_no: resolved.roll_no,
       department: resolved.department, photo_url: resolved.photo_url,

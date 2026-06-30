@@ -48,6 +48,8 @@ function ScanPage() {
     return () => { window.removeEventListener("online", onOnline); window.removeEventListener("offline", onOffline); };
   }, []);
 
+  useEffect(() => { preloadBeeps(); }, []);
+
   useEffect(() => {
     return () => { stop().catch(() => {}); };
     // eslint-disable-next-line react-hooks/exhaustive-deps

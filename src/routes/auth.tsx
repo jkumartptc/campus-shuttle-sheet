@@ -17,7 +17,6 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Staff sign in for the college transport admin app." },
     ],
   }),
-  ssr: false,
   component: AuthPage,
 });
 

@@ -181,8 +181,13 @@ function ScanPage() {
       route: s.stops?.routes?.name ?? null, stop: s.stops?.name ?? null,
       photoUrl, time: new Date().toLocaleTimeString(), trip, offline,
     });
-    beep("ok");
-    toast.success(`Attendance Marked: ${s.name}${offline ? " (offline)" : ""}`);
+    if (offline) {
+      beep("warning"); vibrate(150);
+      toast.message("Offline Mode — Attendance Saved", { description: s.name });
+    } else {
+      beep("ok"); vibrate([80, 40, 80]);
+      toast.success(`Attendance Marked Successfully — ${s.name}`);
+    }
   };
 
   return (

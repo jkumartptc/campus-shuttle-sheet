@@ -189,9 +189,12 @@ export type Database = {
         Row: {
           bus_id: string | null
           created_at: string
+          driver: string | null
           filled_by: string | null
           filled_on: string
+          fuel_type: string | null
           id: string
+          indent_number: string | null
           litres: number
           mileage_kmpl: number | null
           odometer: number
@@ -206,9 +209,12 @@ export type Database = {
         Insert: {
           bus_id?: string | null
           created_at?: string
+          driver?: string | null
           filled_by?: string | null
           filled_on?: string
+          fuel_type?: string | null
           id?: string
+          indent_number?: string | null
           litres: number
           mileage_kmpl?: number | null
           odometer: number
@@ -223,9 +229,12 @@ export type Database = {
         Update: {
           bus_id?: string | null
           created_at?: string
+          driver?: string | null
           filled_by?: string | null
           filled_on?: string
+          fuel_type?: string | null
           id?: string
+          indent_number?: string | null
           litres?: number
           mileage_kmpl?: number | null
           odometer?: number

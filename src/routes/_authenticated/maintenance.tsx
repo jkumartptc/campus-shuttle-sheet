@@ -26,7 +26,7 @@ type Vehicle = {
   last_service_date: string | null; next_service_date: string | null; next_service_km: number | null;
 };
 
-type Record = {
+type MRecord = {
   id: string; vehicle_id: string; service_date: string; odometer: number | null;
   maintenance_type: string; description: string | null; workshop: string | null;
   invoice_no: string | null; cost: number; next_service_date: string | null;
@@ -50,7 +50,7 @@ function statusColor(s: string) {
 
 function MaintenancePage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [records, setRecords] = useState<Record[]>([]);
+  const [records, setRecords] = useState<MRecord[]>([]);
   const [open, setOpen] = useState(false);
   const [historyVehicle, setHistoryVehicle] = useState<Vehicle | null>(null);
   const [form, setForm] = useState<typeof emptyForm>(emptyForm);
@@ -61,7 +61,7 @@ function MaintenancePage() {
       supabase.from("maintenance_records").select("*").order("service_date", { ascending: false }),
     ]);
     setVehicles((v.data ?? []) as Vehicle[]);
-    setRecords((r.data ?? []) as Record[]);
+    setRecords((r.data ?? []) as MRecord[]);
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -117,11 +117,11 @@ function MaintenancePage() {
     } else if (form.status === "In Progress") {
       await supabase.from("vehicle_master").update({ status: "under_maintenance" }).eq("id", form.vehicle_id);
     }
-    toast.success("Record saved");
+    toast.success("MRecord saved");
     setOpen(false); setForm(emptyForm); load();
   };
 
-  const exportCSV = (rows: Record[], filename: string) => {
+  const exportCSV = (rows: MRecord[], filename: string) => {
     const header = ["Date","Vehicle","Registration","Type","Description","Workshop","Invoice","Odometer","Cost","Status","Next Service Date","Next Service KM"];
     const csv = [header.join(",")].concat(rows.map(r => {
       const v = vById[r.vehicle_id];
@@ -317,7 +317,7 @@ function Stat({ label, value, icon }: { label: string; value: string | number; i
   );
 }
 
-function RecordTable({ records, vById, hideVehicle }: { records: Record[]; vById: Record<string, Vehicle> | any; hideVehicle?: boolean }) {
+function RecordTable({ records, vById, hideVehicle }: { records: MRecord[]; vById: MRecord<string, Vehicle> | any; hideVehicle?: boolean }) {
   if (records.length === 0) {
     return <div className="py-8 text-center text-sm text-muted-foreground">No records yet.</div>;
   }
@@ -355,14 +355,14 @@ function RecordTable({ records, vById, hideVehicle }: { records: Record[]; vById
   );
 }
 
-function ReportsView({ vehicles, records, exportCSV }: { vehicles: Vehicle[]; records: Record[]; exportCSV: (rows: Record[], name: string) => void }) {
+function ReportsView({ vehicles, records, exportCSV }: { vehicles: Vehicle[]; records: MRecord[]; exportCSV: (rows: MRecord[], name: string) => void }) {
   const perVehicle = useMemo(() => vehicles.map(v => {
     const rs = records.filter(r => r.vehicle_id === v.id);
     return { v, count: rs.length, total: rs.reduce((s, r) => s + Number(r.cost ?? 0), 0) };
   }).sort((a, b) => b.total - a.total), [vehicles, records]);
 
   const perMonth = useMemo(() => {
-    const m: Record<string, number> = {};
+    const m: MRecord<string, number> = {};
     for (const r of records) {
       const k = r.service_date.slice(0, 7);
       m[k] = (m[k] ?? 0) + Number(r.cost ?? 0);

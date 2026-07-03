@@ -117,7 +117,7 @@ function MaintenancePage() {
     } else if (form.status === "In Progress") {
       await supabase.from("vehicle_master").update({ status: "under_maintenance" }).eq("id", form.vehicle_id);
     }
-    toast.success("MRecord saved");
+    toast.success("Record saved");
     setOpen(false); setForm(emptyForm); load();
   };
 
@@ -317,7 +317,7 @@ function Stat({ label, value, icon }: { label: string; value: string | number; i
   );
 }
 
-function RecordTable({ records, vById, hideVehicle }: { records: MRecord[]; vById: MRecord<string, Vehicle> | any; hideVehicle?: boolean }) {
+function RecordTable({ records, vById, hideVehicle }: { records: MRecord[]; vById: Record<string, Vehicle>; hideVehicle?: boolean }) {
   if (records.length === 0) {
     return <div className="py-8 text-center text-sm text-muted-foreground">No records yet.</div>;
   }
@@ -362,7 +362,7 @@ function ReportsView({ vehicles, records, exportCSV }: { vehicles: Vehicle[]; re
   }).sort((a, b) => b.total - a.total), [vehicles, records]);
 
   const perMonth = useMemo(() => {
-    const m: MRecord<string, number> = {};
+    const m: Record<string, number> = {};
     for (const r of records) {
       const k = r.service_date.slice(0, 7);
       m[k] = (m[k] ?? 0) + Number(r.cost ?? 0);

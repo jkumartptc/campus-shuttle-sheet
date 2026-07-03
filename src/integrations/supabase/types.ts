@@ -187,46 +187,55 @@ export type Database = {
       }
       fuel_logs: {
         Row: {
-          bus_id: string
+          bus_id: string | null
           created_at: string
+          filled_by: string | null
           filled_on: string
           id: string
           litres: number
           mileage_kmpl: number | null
           odometer: number
+          payment_mode: string | null
           rate_per_litre: number
           remarks: string | null
           station: string | null
           total_cost: number
           updated_at: string
+          vehicle_id: string | null
         }
         Insert: {
-          bus_id: string
+          bus_id?: string | null
           created_at?: string
+          filled_by?: string | null
           filled_on?: string
           id?: string
           litres: number
           mileage_kmpl?: number | null
           odometer: number
+          payment_mode?: string | null
           rate_per_litre?: number
           remarks?: string | null
           station?: string | null
           total_cost?: number
           updated_at?: string
+          vehicle_id?: string | null
         }
         Update: {
-          bus_id?: string
+          bus_id?: string | null
           created_at?: string
+          filled_by?: string | null
           filled_on?: string
           id?: string
           litres?: number
           mileage_kmpl?: number | null
           odometer?: number
+          payment_mode?: string | null
           rate_per_litre?: number
           remarks?: string | null
           station?: string | null
           total_cost?: number
           updated_at?: string
+          vehicle_id?: string | null
         }
         Relationships: [
           {
@@ -234,6 +243,13 @@ export type Database = {
             columns: ["bus_id"]
             isOneToOne: false
             referencedRelation: "buses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_logs_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_master"
             referencedColumns: ["id"]
           },
         ]

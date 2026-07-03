@@ -12,6 +12,7 @@ import {
   ScanLine,
   IdCard,
   Wrench,
+  Fuel,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,6 +33,7 @@ const nav = [
   { to: "/attendance", label: "Bus Attendance", icon: ScanLine, admin: false },
   { to: "/bus-passes", label: "Bus Pass", icon: IdCard, admin: false },
   { to: "/maintenance", label: "Maintenance", icon: Wrench, admin: false },
+  { to: "/fuel-logs", label: "Fuel & Mileage", icon: Fuel, admin: false },
 ] as const;
 
 

@@ -31,6 +31,7 @@ const nav = [
   { to: "/staff", label: "Staff", icon: ShieldCheck, admin: false },
   { to: "/attendance", label: "Bus Attendance", icon: ScanLine, admin: false },
   { to: "/bus-passes", label: "Bus Pass", icon: IdCard, admin: false },
+  { to: "/maintenance", label: "Maintenance", icon: Wrench, admin: false },
 ] as const;
 
 

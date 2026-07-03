@@ -238,6 +238,65 @@ export type Database = {
           },
         ]
       }
+      maintenance_records: {
+        Row: {
+          cost: number
+          created_at: string
+          description: string | null
+          id: string
+          invoice_no: string | null
+          maintenance_type: string
+          next_service_date: string | null
+          next_service_km: number | null
+          odometer: number | null
+          service_date: string
+          status: string
+          updated_at: string
+          vehicle_id: string
+          workshop: string | null
+        }
+        Insert: {
+          cost?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_no?: string | null
+          maintenance_type: string
+          next_service_date?: string | null
+          next_service_km?: number | null
+          odometer?: number | null
+          service_date?: string
+          status?: string
+          updated_at?: string
+          vehicle_id: string
+          workshop?: string | null
+        }
+        Update: {
+          cost?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          invoice_no?: string | null
+          maintenance_type?: string
+          next_service_date?: string | null
+          next_service_km?: number | null
+          odometer?: number | null
+          service_date?: string
+          status?: string
+          updated_at?: string
+          vehicle_id?: string
+          workshop?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_records_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -557,6 +616,51 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      vehicle_master: {
+        Row: {
+          campus_only: boolean
+          category: string
+          created_at: string
+          id: string
+          last_service_date: string | null
+          name: string
+          next_service_date: string | null
+          next_service_km: number | null
+          reg_no: string | null
+          status: string
+          updated_at: string
+          usage: string | null
+        }
+        Insert: {
+          campus_only?: boolean
+          category: string
+          created_at?: string
+          id?: string
+          last_service_date?: string | null
+          name: string
+          next_service_date?: string | null
+          next_service_km?: number | null
+          reg_no?: string | null
+          status?: string
+          updated_at?: string
+          usage?: string | null
+        }
+        Update: {
+          campus_only?: boolean
+          category?: string
+          created_at?: string
+          id?: string
+          last_service_date?: string | null
+          name?: string
+          next_service_date?: string | null
+          next_service_km?: number | null
+          reg_no?: string | null
+          status?: string
+          updated_at?: string
+          usage?: string | null
         }
         Relationships: []
       }

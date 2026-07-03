@@ -26,6 +26,7 @@ import { Route as AuthenticatedBusesRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedBusPassesRouteImport } from './routes/_authenticated/bus-passes'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
+import { Route as AuthenticatedMaintenanceVehicleIdRouteImport } from './routes/_authenticated/maintenance.$vehicleId'
 import { Route as AuthenticatedBusesIdRouteImport } from './routes/_authenticated/buses.$id'
 import { Route as AuthenticatedAttendanceScanRouteImport } from './routes/_authenticated/attendance.scan'
 import { Route as AuthenticatedAttendanceReportsRouteImport } from './routes/_authenticated/attendance.reports'
@@ -116,6 +117,12 @@ const AuthenticatedStudentsIdRoute = AuthenticatedStudentsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedStudentsRoute,
 } as any)
+const AuthenticatedMaintenanceVehicleIdRoute =
+  AuthenticatedMaintenanceVehicleIdRouteImport.update({
+    id: '/$vehicleId',
+    path: '/$vehicleId',
+    getParentRoute: () => AuthenticatedMaintenanceRoute,
+  } as any)
 const AuthenticatedBusesIdRoute = AuthenticatedBusesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -151,7 +158,7 @@ export interface FileRoutesByFullPath {
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
-  '/maintenance': typeof AuthenticatedMaintenanceRoute
+  '/maintenance': typeof AuthenticatedMaintenanceRouteWithChildren
   '/requests': typeof AuthenticatedRequestsRoute
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
   '/attendance/scan': typeof AuthenticatedAttendanceScanRoute
   '/buses/$id': typeof AuthenticatedBusesIdRoute
+  '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
 }
 export interface FileRoutesByTo {
@@ -173,7 +181,7 @@ export interface FileRoutesByTo {
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
-  '/maintenance': typeof AuthenticatedMaintenanceRoute
+  '/maintenance': typeof AuthenticatedMaintenanceRouteWithChildren
   '/requests': typeof AuthenticatedRequestsRoute
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
@@ -182,6 +190,7 @@ export interface FileRoutesByTo {
   '/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
   '/attendance/scan': typeof AuthenticatedAttendanceScanRoute
   '/buses/$id': typeof AuthenticatedBusesIdRoute
+  '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
 }
 export interface FileRoutesById {
@@ -197,7 +206,7 @@ export interface FileRoutesById {
   '/_authenticated/buses': typeof AuthenticatedBusesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/fees': typeof AuthenticatedFeesRoute
-  '/_authenticated/maintenance': typeof AuthenticatedMaintenanceRoute
+  '/_authenticated/maintenance': typeof AuthenticatedMaintenanceRouteWithChildren
   '/_authenticated/requests': typeof AuthenticatedRequestsRoute
   '/_authenticated/routes': typeof AuthenticatedRoutesRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
@@ -206,6 +215,7 @@ export interface FileRoutesById {
   '/_authenticated/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
   '/_authenticated/attendance/scan': typeof AuthenticatedAttendanceScanRoute
   '/_authenticated/buses/$id': typeof AuthenticatedBusesIdRoute
+  '/_authenticated/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
 }
 export interface FileRouteTypes {
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/attendance/reports'
     | '/attendance/scan'
     | '/buses/$id'
+    | '/maintenance/$vehicleId'
     | '/students/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/attendance/reports'
     | '/attendance/scan'
     | '/buses/$id'
+    | '/maintenance/$vehicleId'
     | '/students/$id'
   id:
     | '__root__'
@@ -275,6 +287,7 @@ export interface FileRouteTypes {
     | '/_authenticated/attendance/reports'
     | '/_authenticated/attendance/scan'
     | '/_authenticated/buses/$id'
+    | '/_authenticated/maintenance/$vehicleId'
     | '/_authenticated/students/$id'
   fileRoutesById: FileRoutesById
 }
@@ -408,6 +421,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsIdRouteImport
       parentRoute: typeof AuthenticatedStudentsRoute
     }
+    '/_authenticated/maintenance/$vehicleId': {
+      id: '/_authenticated/maintenance/$vehicleId'
+      path: '/$vehicleId'
+      fullPath: '/maintenance/$vehicleId'
+      preLoaderRoute: typeof AuthenticatedMaintenanceVehicleIdRouteImport
+      parentRoute: typeof AuthenticatedMaintenanceRoute
+    }
     '/_authenticated/buses/$id': {
       id: '/_authenticated/buses/$id'
       path: '/$id'
@@ -468,6 +488,21 @@ const AuthenticatedBusesRouteChildren: AuthenticatedBusesRouteChildren = {
 const AuthenticatedBusesRouteWithChildren =
   AuthenticatedBusesRoute._addFileChildren(AuthenticatedBusesRouteChildren)
 
+interface AuthenticatedMaintenanceRouteChildren {
+  AuthenticatedMaintenanceVehicleIdRoute: typeof AuthenticatedMaintenanceVehicleIdRoute
+}
+
+const AuthenticatedMaintenanceRouteChildren: AuthenticatedMaintenanceRouteChildren =
+  {
+    AuthenticatedMaintenanceVehicleIdRoute:
+      AuthenticatedMaintenanceVehicleIdRoute,
+  }
+
+const AuthenticatedMaintenanceRouteWithChildren =
+  AuthenticatedMaintenanceRoute._addFileChildren(
+    AuthenticatedMaintenanceRouteChildren,
+  )
+
 interface AuthenticatedStudentsRouteChildren {
   AuthenticatedStudentsIdRoute: typeof AuthenticatedStudentsIdRoute
 }
@@ -487,7 +522,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBusesRoute: typeof AuthenticatedBusesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFeesRoute: typeof AuthenticatedFeesRoute
-  AuthenticatedMaintenanceRoute: typeof AuthenticatedMaintenanceRoute
+  AuthenticatedMaintenanceRoute: typeof AuthenticatedMaintenanceRouteWithChildren
   AuthenticatedRequestsRoute: typeof AuthenticatedRequestsRoute
   AuthenticatedRoutesRoute: typeof AuthenticatedRoutesRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
@@ -500,7 +535,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBusesRoute: AuthenticatedBusesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFeesRoute: AuthenticatedFeesRoute,
-  AuthenticatedMaintenanceRoute: AuthenticatedMaintenanceRoute,
+  AuthenticatedMaintenanceRoute: AuthenticatedMaintenanceRouteWithChildren,
   AuthenticatedRequestsRoute: AuthenticatedRequestsRoute,
   AuthenticatedRoutesRoute: AuthenticatedRoutesRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRoute,

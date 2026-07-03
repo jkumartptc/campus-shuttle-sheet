@@ -25,6 +25,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBusesRouteImport } from './routes/_authenticated/buses'
 import { Route as AuthenticatedBusPassesRouteImport } from './routes/_authenticated/bus-passes'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
+import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedMaintenanceVehicleIdRouteImport } from './routes/_authenticated/maintenance.$vehicleId'
 import { Route as AuthenticatedBusesIdRouteImport } from './routes/_authenticated/buses.$id'
@@ -112,6 +113,12 @@ const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMaintenanceIndexRoute =
+  AuthenticatedMaintenanceIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedMaintenanceRoute,
+  } as any)
 const AuthenticatedStudentsIdRoute = AuthenticatedStudentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -169,6 +176,7 @@ export interface FileRoutesByFullPath {
   '/buses/$id': typeof AuthenticatedBusesIdRoute
   '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -181,7 +189,6 @@ export interface FileRoutesByTo {
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
-  '/maintenance': typeof AuthenticatedMaintenanceRouteWithChildren
   '/requests': typeof AuthenticatedRequestsRoute
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
@@ -192,6 +199,7 @@ export interface FileRoutesByTo {
   '/buses/$id': typeof AuthenticatedBusesIdRoute
   '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/maintenance': typeof AuthenticatedMaintenanceIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -217,6 +225,7 @@ export interface FileRoutesById {
   '/_authenticated/buses/$id': typeof AuthenticatedBusesIdRoute
   '/_authenticated/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/_authenticated/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -242,6 +251,7 @@ export interface FileRouteTypes {
     | '/buses/$id'
     | '/maintenance/$vehicleId'
     | '/students/$id'
+    | '/maintenance/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -254,7 +264,6 @@ export interface FileRouteTypes {
     | '/buses'
     | '/dashboard'
     | '/fees'
-    | '/maintenance'
     | '/requests'
     | '/routes'
     | '/staff'
@@ -265,6 +274,7 @@ export interface FileRouteTypes {
     | '/buses/$id'
     | '/maintenance/$vehicleId'
     | '/students/$id'
+    | '/maintenance'
   id:
     | '__root__'
     | '/'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/_authenticated/buses/$id'
     | '/_authenticated/maintenance/$vehicleId'
     | '/_authenticated/students/$id'
+    | '/_authenticated/maintenance/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -414,6 +425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/maintenance/': {
+      id: '/_authenticated/maintenance/'
+      path: '/'
+      fullPath: '/maintenance/'
+      preLoaderRoute: typeof AuthenticatedMaintenanceIndexRouteImport
+      parentRoute: typeof AuthenticatedMaintenanceRoute
+    }
     '/_authenticated/students/$id': {
       id: '/_authenticated/students/$id'
       path: '/$id'
@@ -490,12 +508,14 @@ const AuthenticatedBusesRouteWithChildren =
 
 interface AuthenticatedMaintenanceRouteChildren {
   AuthenticatedMaintenanceVehicleIdRoute: typeof AuthenticatedMaintenanceVehicleIdRoute
+  AuthenticatedMaintenanceIndexRoute: typeof AuthenticatedMaintenanceIndexRoute
 }
 
 const AuthenticatedMaintenanceRouteChildren: AuthenticatedMaintenanceRouteChildren =
   {
     AuthenticatedMaintenanceVehicleIdRoute:
       AuthenticatedMaintenanceVehicleIdRoute,
+    AuthenticatedMaintenanceIndexRoute: AuthenticatedMaintenanceIndexRoute,
   }
 
 const AuthenticatedMaintenanceRouteWithChildren =

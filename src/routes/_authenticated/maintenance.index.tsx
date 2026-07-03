@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import { Plus, Wrench, Car, Bus as BusIcon, FileDown, Printer, History } from "lucide-react";
 import { inr, fmtDate } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/maintenance")({
+export const Route = createFileRoute("/_authenticated/maintenance/")({
   head: () => ({ meta: [{ title: "Vehicle Maintenance — Transport Admin" }] }),
   component: MaintenancePage,
 });

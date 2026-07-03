@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -203,7 +203,11 @@ function MaintenancePage() {
                       <div>Next service: {fmtDate(v.next_service_date)}{v.next_service_km ? ` · ${v.next_service_km} km` : ""}</div>
                     </div>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => setHistoryVehicle(v)}><History className="mr-1 h-3 w-3" /> History</Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link to="/maintenance/$vehicleId" params={{ vehicleId: v.id }}>
+                          <History className="mr-1 h-3 w-3" /> Open
+                        </Link>
+                      </Button>
                       <Button size="sm" onClick={() => openAdd(v.id)}><Plus className="mr-1 h-3 w-3" /> Log service</Button>
                     </div>
                   </CardContent>

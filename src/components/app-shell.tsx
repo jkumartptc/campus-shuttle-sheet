@@ -12,6 +12,7 @@ import {
   ScanLine,
   IdCard,
   Wrench,
+  Fuel,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";

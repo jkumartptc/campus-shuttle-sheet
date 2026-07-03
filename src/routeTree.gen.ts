@@ -20,6 +20,7 @@ import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedRoutesRouteImport } from './routes/_authenticated/routes'
 import { Route as AuthenticatedRequestsRouteImport } from './routes/_authenticated/requests'
 import { Route as AuthenticatedMaintenanceRouteImport } from './routes/_authenticated/maintenance'
+import { Route as AuthenticatedFuelLogsRouteImport } from './routes/_authenticated/fuel-logs'
 import { Route as AuthenticatedFeesRouteImport } from './routes/_authenticated/fees'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedBusesRouteImport } from './routes/_authenticated/buses'
@@ -86,6 +87,11 @@ const AuthenticatedMaintenanceRoute =
     path: '/maintenance',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFuelLogsRoute = AuthenticatedFuelLogsRouteImport.update({
+  id: '/fuel-logs',
+  path: '/fuel-logs',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFeesRoute = AuthenticatedFeesRouteImport.update({
   id: '/fees',
   path: '/fees',
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
+  '/fuel-logs': typeof AuthenticatedFuelLogsRoute
   '/maintenance': typeof AuthenticatedMaintenanceRoute
   '/requests': typeof AuthenticatedRequestsRoute
   '/routes': typeof AuthenticatedRoutesRoute
@@ -173,6 +180,7 @@ export interface FileRoutesByTo {
   '/buses': typeof AuthenticatedBusesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/fees': typeof AuthenticatedFeesRoute
+  '/fuel-logs': typeof AuthenticatedFuelLogsRoute
   '/maintenance': typeof AuthenticatedMaintenanceRoute
   '/requests': typeof AuthenticatedRequestsRoute
   '/routes': typeof AuthenticatedRoutesRoute
@@ -197,6 +205,7 @@ export interface FileRoutesById {
   '/_authenticated/buses': typeof AuthenticatedBusesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/fees': typeof AuthenticatedFeesRoute
+  '/_authenticated/fuel-logs': typeof AuthenticatedFuelLogsRoute
   '/_authenticated/maintenance': typeof AuthenticatedMaintenanceRoute
   '/_authenticated/requests': typeof AuthenticatedRequestsRoute
   '/_authenticated/routes': typeof AuthenticatedRoutesRoute
@@ -221,6 +230,7 @@ export interface FileRouteTypes {
     | '/buses'
     | '/dashboard'
     | '/fees'
+    | '/fuel-logs'
     | '/maintenance'
     | '/requests'
     | '/routes'
@@ -243,6 +253,7 @@ export interface FileRouteTypes {
     | '/buses'
     | '/dashboard'
     | '/fees'
+    | '/fuel-logs'
     | '/maintenance'
     | '/requests'
     | '/routes'
@@ -266,6 +277,7 @@ export interface FileRouteTypes {
     | '/_authenticated/buses'
     | '/_authenticated/dashboard'
     | '/_authenticated/fees'
+    | '/_authenticated/fuel-logs'
     | '/_authenticated/maintenance'
     | '/_authenticated/requests'
     | '/_authenticated/routes'
@@ -364,6 +376,13 @@ declare module '@tanstack/react-router' {
       path: '/maintenance'
       fullPath: '/maintenance'
       preLoaderRoute: typeof AuthenticatedMaintenanceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fuel-logs': {
+      id: '/_authenticated/fuel-logs'
+      path: '/fuel-logs'
+      fullPath: '/fuel-logs'
+      preLoaderRoute: typeof AuthenticatedFuelLogsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fees': {
@@ -487,6 +506,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBusesRoute: typeof AuthenticatedBusesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFeesRoute: typeof AuthenticatedFeesRoute
+  AuthenticatedFuelLogsRoute: typeof AuthenticatedFuelLogsRoute
   AuthenticatedMaintenanceRoute: typeof AuthenticatedMaintenanceRoute
   AuthenticatedRequestsRoute: typeof AuthenticatedRequestsRoute
   AuthenticatedRoutesRoute: typeof AuthenticatedRoutesRoute
@@ -500,6 +520,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBusesRoute: AuthenticatedBusesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFeesRoute: AuthenticatedFeesRoute,
+  AuthenticatedFuelLogsRoute: AuthenticatedFuelLogsRoute,
   AuthenticatedMaintenanceRoute: AuthenticatedMaintenanceRoute,
   AuthenticatedRequestsRoute: AuthenticatedRequestsRoute,
   AuthenticatedRoutesRoute: AuthenticatedRoutesRoute,

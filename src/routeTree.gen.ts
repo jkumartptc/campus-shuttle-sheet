@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RequestRouteImport } from './routes/request'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as BusPassRouteImport } from './routes/bus-pass'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccessDeniedRouteImport } from './routes/access-denied'
@@ -25,6 +26,8 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedBusesRouteImport } from './routes/_authenticated/buses'
 import { Route as AuthenticatedBusPassesRouteImport } from './routes/_authenticated/bus-passes'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedMaintenanceVehicleIdRouteImport } from './routes/_authenticated/maintenance.$vehicleId'
@@ -32,10 +35,17 @@ import { Route as AuthenticatedBusesIdRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedAttendanceScanRouteImport } from './routes/_authenticated/attendance.scan'
 import { Route as AuthenticatedAttendanceReportsRouteImport } from './routes/_authenticated/attendance.reports'
 import { Route as AuthenticatedAttendanceManualRouteImport } from './routes/_authenticated/attendance.manual'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
 const RequestRoute = RequestRouteImport.update({
   id: '/request',
   path: '/request',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BusPassRoute = BusPassRouteImport.update({
@@ -113,6 +123,18 @@ const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
   path: '/attendance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedMaintenanceIndexRoute =
   AuthenticatedMaintenanceIndexRouteImport.update({
     id: '/',
@@ -153,13 +175,27 @@ const AuthenticatedAttendanceManualRoute =
     path: '/manual',
     getParentRoute: () => AuthenticatedAttendanceRoute,
   } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/bus-pass': typeof BusPassRoute
+  '/mcp': typeof McpRoute
   '/request': typeof RequestRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/attendance': typeof AuthenticatedAttendanceRouteWithChildren
   '/bus-passes': typeof AuthenticatedBusPassesRoute
   '/buses': typeof AuthenticatedBusesRouteWithChildren
@@ -170,6 +206,8 @@ export interface FileRoutesByFullPath {
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/attendance/manual': typeof AuthenticatedAttendanceManualRoute
   '/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
   '/attendance/scan': typeof AuthenticatedAttendanceScanRoute
@@ -183,7 +221,10 @@ export interface FileRoutesByTo {
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/bus-pass': typeof BusPassRoute
+  '/mcp': typeof McpRoute
   '/request': typeof RequestRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/attendance': typeof AuthenticatedAttendanceRouteWithChildren
   '/bus-passes': typeof AuthenticatedBusPassesRoute
   '/buses': typeof AuthenticatedBusesRouteWithChildren
@@ -193,6 +234,8 @@ export interface FileRoutesByTo {
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/attendance/manual': typeof AuthenticatedAttendanceManualRoute
   '/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
   '/attendance/scan': typeof AuthenticatedAttendanceScanRoute
@@ -208,7 +251,10 @@ export interface FileRoutesById {
   '/access-denied': typeof AccessDeniedRoute
   '/auth': typeof AuthRoute
   '/bus-pass': typeof BusPassRoute
+  '/mcp': typeof McpRoute
   '/request': typeof RequestRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRouteWithChildren
   '/_authenticated/bus-passes': typeof AuthenticatedBusPassesRoute
   '/_authenticated/buses': typeof AuthenticatedBusesRouteWithChildren
@@ -219,6 +265,8 @@ export interface FileRoutesById {
   '/_authenticated/routes': typeof AuthenticatedRoutesRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/attendance/manual': typeof AuthenticatedAttendanceManualRoute
   '/_authenticated/attendance/reports': typeof AuthenticatedAttendanceReportsRoute
   '/_authenticated/attendance/scan': typeof AuthenticatedAttendanceScanRoute
@@ -234,7 +282,10 @@ export interface FileRouteTypes {
     | '/access-denied'
     | '/auth'
     | '/bus-pass'
+    | '/mcp'
     | '/request'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/attendance'
     | '/bus-passes'
     | '/buses'
@@ -245,6 +296,8 @@ export interface FileRouteTypes {
     | '/routes'
     | '/staff'
     | '/students'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/attendance/manual'
     | '/attendance/reports'
     | '/attendance/scan'
@@ -258,7 +311,10 @@ export interface FileRouteTypes {
     | '/access-denied'
     | '/auth'
     | '/bus-pass'
+    | '/mcp'
     | '/request'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/attendance'
     | '/bus-passes'
     | '/buses'
@@ -268,6 +324,8 @@ export interface FileRouteTypes {
     | '/routes'
     | '/staff'
     | '/students'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/attendance/manual'
     | '/attendance/reports'
     | '/attendance/scan'
@@ -282,7 +340,10 @@ export interface FileRouteTypes {
     | '/access-denied'
     | '/auth'
     | '/bus-pass'
+    | '/mcp'
     | '/request'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/attendance'
     | '/_authenticated/bus-passes'
     | '/_authenticated/buses'
@@ -293,6 +354,8 @@ export interface FileRouteTypes {
     | '/_authenticated/routes'
     | '/_authenticated/staff'
     | '/_authenticated/students'
+    | '/.lovable/oauth/consent'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/attendance/manual'
     | '/_authenticated/attendance/reports'
     | '/_authenticated/attendance/scan'
@@ -308,7 +371,12 @@ export interface RootRouteChildren {
   AccessDeniedRoute: typeof AccessDeniedRoute
   AuthRoute: typeof AuthRoute
   BusPassRoute: typeof BusPassRoute
+  McpRoute: typeof McpRoute
   RequestRoute: typeof RequestRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -318,6 +386,13 @@ declare module '@tanstack/react-router' {
       path: '/request'
       fullPath: '/request'
       preLoaderRoute: typeof RequestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bus-pass': {
@@ -425,6 +500,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/maintenance/': {
       id: '/_authenticated/maintenance/'
       path: '/'
@@ -473,6 +562,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/attendance/manual'
       preLoaderRoute: typeof AuthenticatedAttendanceManualRouteImport
       parentRoute: typeof AuthenticatedAttendanceRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -571,8 +674,24 @@ const rootRouteChildren: RootRouteChildren = {
   AccessDeniedRoute: AccessDeniedRoute,
   AuthRoute: AuthRoute,
   BusPassRoute: BusPassRoute,
+  McpRoute: McpRoute,
   RequestRoute: RequestRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

@@ -11,6 +11,9 @@ import { CollegeLogo } from "@/components/college-logo";
 import { primaryRole, landingPathForRole, type AppRole } from "@/lib/use-role";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") ? s.next : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Sign in — Transport Admin" },
@@ -20,7 +23,11 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-async function redirectByRole(userId: string, navigate: ReturnType<typeof useNavigate>) {
+async function redirectByRole(userId: string, navigate: ReturnType<typeof useNavigate>, next?: string) {
+  if (next) {
+    window.location.assign(next);
+    return;
+  }
   const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
   const roles = ((data ?? []) as { role: AppRole }[]).map((r) => r.role);
   const to = landingPathForRole(primaryRole(roles));
@@ -29,6 +36,7 @@ async function redirectByRole(userId: string, navigate: ReturnType<typeof useNav
 
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -36,9 +44,9 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) void redirectByRole(data.user.id, navigate);
+      if (data.user) void redirectByRole(data.user.id, navigate, next);
     });
-  }, [navigate]);
+  }, [navigate, next]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +55,7 @@ function AuthPage() {
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success("Signed in");
-    if (data.user) await redirectByRole(data.user.id, navigate);
+    if (data.user) await redirectByRole(data.user.id, navigate, next);
     else navigate({ to: "/dashboard", replace: true });
   };
 

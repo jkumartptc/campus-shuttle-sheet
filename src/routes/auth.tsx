@@ -28,11 +28,15 @@ async function redirectByRole(userId: string, navigate: ReturnType<typeof useNav
     window.location.assign(next);
     return;
   }
-  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
-  const roles = ((data ?? []) as { role: AppRole }[]).map((r) => r.role);
-  const to = landingPathForRole(primaryRole(roles));
+  const { data } = await supabase.from("user_roles").select("role, driver_type").eq("user_id", userId);
+  const rows = (data ?? []) as { role: AppRole; driver_type: "bus" | "car" | null }[];
+  const roles = rows.map((r) => r.role);
+  const role = primaryRole(roles);
+  const driverType = rows.find((r) => r.role === "driver")?.driver_type ?? null;
+  const to = landingPathForRole(role, driverType);
   navigate({ to, replace: true });
 }
+
 
 function AuthPage() {
   const navigate = useNavigate();

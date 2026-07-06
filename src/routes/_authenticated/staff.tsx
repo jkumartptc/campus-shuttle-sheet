@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useCurrentUser, useIsAdmin, type AppRole } from "@/lib/use-role";
+import { useCurrentUser, useIsAdmin, type AppRole, type DriverType } from "@/lib/use-role";
 import { deleteStaffUser } from "@/lib/staff-admin.functions";
 import { ShieldCheck, Trash2, User as UserIcon } from "lucide-react";
 
@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_authenticated/staff")({
 });
 
 const ROLE_OPTIONS: AppRole[] = ["admin", "staff", "driver", "accounts"];
+const DRIVER_TYPE_OPTIONS: DriverType[] = ["bus", "car"];
 
 function StaffPage() {
   const { user } = useCurrentUser();
@@ -33,14 +34,20 @@ function StaffPage() {
 
   const load = useCallback(async () => {
     const { data: profiles } = await supabase.from("profiles").select("id, full_name, email, created_at").order("created_at");
-    const { data: roles } = await supabase.from("user_roles").select("user_id, role");
+    const { data: roles } = await supabase.from("user_roles").select("user_id, role, driver_type");
     const rolesByUser = new Map<string, AppRole[]>();
+    const driverTypeByUser = new Map<string, DriverType | null>();
     (roles ?? []).forEach((r: any) => {
       const list = rolesByUser.get(r.user_id) ?? [];
       list.push(r.role);
       rolesByUser.set(r.user_id, list);
+      if (r.role === "driver") driverTypeByUser.set(r.user_id, r.driver_type ?? null);
     });
-    setRows((profiles ?? []).map((p: any) => ({ ...p, roles: rolesByUser.get(p.id) ?? [] })));
+    setRows((profiles ?? []).map((p: any) => ({
+      ...p,
+      roles: rolesByUser.get(p.id) ?? [],
+      driver_type: driverTypeByUser.get(p.id) ?? null,
+    })));
   }, []);
   useEffect(() => { load(); }, [load]);
 
@@ -51,11 +58,25 @@ function StaffPage() {
     // Replace all roles with the chosen one (single primary role per user).
     const { error: delErr } = await supabase.from("user_roles").delete().eq("user_id", uid);
     if (delErr) return toast.error(delErr.message);
-    const { error: insErr } = await supabase.from("user_roles").insert({ user_id: uid, role: next });
+    const insertPayload: { user_id: string; role: AppRole; driver_type?: DriverType } =
+      next === "driver" ? { user_id: uid, role: next, driver_type: "bus" } : { user_id: uid, role: next };
+    const { error: insErr } = await supabase.from("user_roles").insert(insertPayload);
     if (insErr) return toast.error(insErr.message);
-    toast.success(`Role set to ${next}`);
+    toast.success(next === "driver" ? "Role set to driver (bus). Change type below if needed." : `Role set to ${next}`);
     load();
   };
+
+  const setDriverType = async (uid: string, next: DriverType) => {
+    const { error } = await supabase.from("user_roles")
+      .update({ driver_type: next })
+      .eq("user_id", uid)
+      .eq("role", "driver");
+    if (error) return toast.error(error.message);
+    toast.success(`Driver type set to ${next}`);
+    load();
+  };
+
+
 
   const confirmDelete = async () => {
     if (!toDelete) return;
@@ -86,16 +107,17 @@ function StaffPage() {
         <CardContent className="p-0">
           <Table>
             <TableHeader><TableRow>
-              <TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead className="text-right">Change role</TableHead><TableHead className="text-right">Delete</TableHead>
+              <TableHead>Name</TableHead><TableHead>Email</TableHead><TableHead>Role</TableHead><TableHead className="text-right">Change role</TableHead><TableHead className="text-right">Driver type</TableHead><TableHead className="text-right">Delete</TableHead>
             </TableRow></TableHeader>
             <TableBody>
-              {rows.length === 0 && <TableRow><TableCell colSpan={5} className="py-6 text-center text-muted-foreground">No staff yet.</TableCell></TableRow>}
+              {rows.length === 0 && <TableRow><TableCell colSpan={6} className="py-6 text-center text-muted-foreground">No staff yet.</TableCell></TableRow>}
               {rows.map((r) => {
                 const current: AppRole[] = r.roles;
                 const primary: AppRole = current.includes("admin") ? "admin"
                   : current.includes("accounts") ? "accounts"
                   : current.includes("driver") ? "driver"
                   : "staff";
+                const dType: DriverType | null = r.driver_type ?? null;
                 return (
                   <TableRow key={r.id}>
                     <TableCell className="font-medium">
@@ -105,7 +127,14 @@ function StaffPage() {
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{r.email ?? "—"}</TableCell>
-                    <TableCell><Badge variant={primary === "admin" ? "default" : "secondary"}>{primary}</Badge></TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={primary === "admin" ? "default" : "secondary"}>{primary}</Badge>
+                        {primary === "driver" && dType && (
+                          <Badge variant="outline" className="capitalize">{dType} driver</Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-right">
                       {isAdmin ? (
                         <Select value={primary} onValueChange={(v) => setRole(r.id, current, v as AppRole)}>
@@ -117,6 +146,20 @@ function StaffPage() {
                           </SelectContent>
                         </Select>
                       ) : null}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {isAdmin && primary === "driver" ? (
+                        <Select value={dType ?? "bus"} onValueChange={(v) => setDriverType(r.id, v as DriverType)}>
+                          <SelectTrigger className="ml-auto w-32"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {DRIVER_TYPE_OPTIONS.map((t) => (
+                              <SelectItem key={t} value={t} className="capitalize">{t}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       {isAdmin && r.id !== user?.id ? (
@@ -133,6 +176,7 @@ function StaffPage() {
                   </TableRow>
                 );
               })}
+
             </TableBody>
           </Table>
         </CardContent>

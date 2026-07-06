@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, useRouterState, useNavigate } from "
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
-import { useCurrentUser, useUserRoles, primaryRole, isPathAllowedForRole } from "@/lib/use-role";
+import { useCurrentUser, useUserRoles, useDriverType, primaryRole, isPathAllowedForRole } from "@/lib/use-role";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -19,16 +19,21 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const { user } = useCurrentUser();
   const roles = useUserRoles(user?.id);
+  const driverType = useDriverType(user?.id);
+
+  const role = primaryRole(roles);
+  const driverTypeLoaded = role !== "driver" || driverType !== undefined;
 
   useEffect(() => {
-    if (!roles) return; // wait until roles are loaded
-    const role = primaryRole(roles);
-    if (!isPathAllowedForRole(pathname, role)) {
+    if (!roles || !driverTypeLoaded) return;
+    if (!isPathAllowedForRole(pathname, role, driverType ?? null)) {
       navigate({ to: "/access-denied", replace: true });
     }
-  }, [roles, pathname, navigate]);
+  }, [roles, driverTypeLoaded, driverType, role, pathname, navigate]);
 
-  const allowed = roles ? isPathAllowedForRole(pathname, primaryRole(roles)) : true;
+  const allowed = roles && driverTypeLoaded
+    ? isPathAllowedForRole(pathname, role, driverType ?? null)
+    : true;
 
   return (
     <AppShell>
@@ -36,3 +41,4 @@ function AuthenticatedLayout() {
     </AppShell>
   );
 }
+

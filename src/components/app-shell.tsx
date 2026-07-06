@@ -17,7 +17,7 @@ import { useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useCurrentUser, useUserRoles } from "@/lib/use-role";
+import { useCurrentUser, useUserRoles, useDriverType } from "@/lib/use-role";
 import { CollegeLogo } from "@/components/college-logo";
 
 
@@ -35,9 +35,14 @@ const nav = [
 ] as const;
 
 
-const driverNav = [
+const busDriverNav = [
   { to: "/attendance/scan", label: "Scan QR", icon: ScanLine },
   { to: "/attendance", label: "Today's Attendance", icon: LayoutDashboard },
+  { to: "/maintenance", label: "Bus Maintenance", icon: Wrench },
+] as const;
+
+const carDriverNav = [
+  { to: "/maintenance", label: "Car Maintenance", icon: Wrench },
 ] as const;
 
 const accountsNav = [
@@ -50,9 +55,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const { user } = useCurrentUser();
   const roles = useUserRoles(user?.id);
+  const driverType = useDriverType(user?.id);
   const isDriverOnly = !!roles && roles.length > 0 && roles.every((r) => r === "driver");
   const isAccountsOnly = !!roles && roles.length > 0 && roles.every((r) => r === "accounts");
-  const items = isDriverOnly ? driverNav : isAccountsOnly ? accountsNav : nav;
+  const items = isDriverOnly
+    ? (driverType === "car" ? carDriverNav : busDriverNav)
+    : isAccountsOnly ? accountsNav : nav;
+
 
   const signOut = async () => {
     await supabase.auth.signOut();

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type AppRole = "admin" | "staff" | "driver" | "accounts";
+export type DriverType = "bus" | "car";
 
 export function useCurrentUser() {
   const [user, setUser] = useState<{ id: string; email: string | null } | null>(null);
@@ -47,6 +48,21 @@ export function useUserRoles(userId: string | undefined) {
   return roles;
 }
 
+export function useDriverType(userId: string | undefined) {
+  const [type, setType] = useState<DriverType | null | undefined>(undefined); // undefined = loading
+  useEffect(() => {
+    if (!userId) { setType(undefined); return; }
+    supabase
+      .from("user_roles")
+      .select("driver_type")
+      .eq("user_id", userId)
+      .eq("role", "driver")
+      .maybeSingle()
+      .then(({ data }) => setType(((data as { driver_type: DriverType | null } | null)?.driver_type) ?? null));
+  }, [userId]);
+  return type;
+}
+
 /** Returns the highest-privilege role for the user. */
 export function primaryRole(roles: AppRole[] | null | undefined): AppRole | null {
   if (!roles || roles.length === 0) return null;
@@ -58,19 +74,35 @@ export function primaryRole(roles: AppRole[] | null | undefined): AppRole | null
 }
 
 /** Default landing path for a role after sign-in. */
-export function landingPathForRole(role: AppRole | null): string {
+export function landingPathForRole(role: AppRole | null, driverType?: DriverType | null): string {
   switch (role) {
-    case "driver": return "/attendance/scan";
+    case "driver":
+      return driverType === "car" ? "/maintenance" : "/attendance/scan";
     case "accounts": return "/fees";
     default: return "/dashboard";
   }
 }
 
 /** Whether a given role is allowed to access a given pathname. */
-export function isPathAllowedForRole(pathname: string, role: AppRole | null): boolean {
+export function isPathAllowedForRole(
+  pathname: string,
+  role: AppRole | null,
+  driverType?: DriverType | null,
+): boolean {
   if (!role) return false;
   if (role === "admin" || role === "staff") return true;
-  if (role === "driver") return pathname === "/attendance" || pathname.startsWith("/attendance/");
   if (role === "accounts") return pathname === "/fees" || pathname.startsWith("/fees/");
+  if (role === "driver") {
+    if (driverType === "bus") {
+      return (
+        pathname === "/attendance" || pathname.startsWith("/attendance/") ||
+        pathname === "/maintenance" || pathname.startsWith("/maintenance/")
+      );
+    }
+    if (driverType === "car") {
+      return pathname === "/maintenance" || pathname.startsWith("/maintenance/");
+    }
+    return false; // driver with no type set — deny until admin assigns
+  }
   return false;
 }

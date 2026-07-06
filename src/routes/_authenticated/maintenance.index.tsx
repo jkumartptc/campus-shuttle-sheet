@@ -49,6 +49,8 @@ function statusColor(s: string) {
 }
 
 function MaintenancePage() {
+  const { user } = useCurrentUser();
+  const driverType = useDriverType(user?.id);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [records, setRecords] = useState<MRecord[]>([]);
   const [open, setOpen] = useState(false);
@@ -60,10 +62,16 @@ function MaintenancePage() {
       supabase.from("vehicle_master").select("*").order("category").order("name"),
       supabase.from("maintenance_records").select("*").order("service_date", { ascending: false }),
     ]);
-    setVehicles((v.data ?? []) as Vehicle[]);
-    setRecords((r.data ?? []) as MRecord[]);
-  }, []);
+    let vs = (v.data ?? []) as Vehicle[];
+    if (driverType === "bus") vs = vs.filter((x) => x.category === "Bus");
+    else if (driverType === "car") vs = vs.filter((x) => x.category !== "Bus");
+    setVehicles(vs);
+    const allowedIds = new Set(vs.map((x) => x.id));
+    const recs = (r.data ?? []) as MRecord[];
+    setRecords(driverType ? recs.filter((rec) => allowedIds.has(rec.vehicle_id)) : recs);
+  }, [driverType]);
   useEffect(() => { load(); }, [load]);
+
 
   const vById = useMemo(() => Object.fromEntries(vehicles.map(v => [v.id, v])), [vehicles]);
 

@@ -626,18 +626,21 @@ export type Database = {
       user_roles: {
         Row: {
           created_at: string
+          driver_type: Database["public"]["Enums"]["driver_type"] | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string
+          driver_type?: Database["public"]["Enums"]["driver_type"] | null
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string
+          driver_type?: Database["public"]["Enums"]["driver_type"] | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
@@ -750,6 +753,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff" | "driver" | "accounts"
+      driver_type: "bus" | "car"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -878,6 +882,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff", "driver", "accounts"],
+      driver_type: ["bus", "car"],
     },
   },
 } as const

@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Wrench, Car, Bus as BusIcon, FileDown, Printer, History } from "lucide-react";
 import { inr, fmtDate } from "@/lib/format";
+import { useCurrentUser, useDriverType } from "@/lib/use-role";
+
 
 export const Route = createFileRoute("/_authenticated/maintenance/")({
   head: () => ({ meta: [{ title: "Vehicle Maintenance — Transport Admin" }] }),

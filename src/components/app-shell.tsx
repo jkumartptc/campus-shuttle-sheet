@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCurrentUser, useUserRoles, useDriverType } from "@/lib/use-role";
 import { CollegeLogo } from "@/components/college-logo";
+import { DriverOdoReminder } from "@/components/driver-odo-reminder";
 
 
 const nav = [
@@ -140,6 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
         )}
 
+        <DriverOdoReminder />
         <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>
     </div>

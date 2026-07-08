@@ -93,14 +93,16 @@ export function isPathAllowedForRole(
   if (role === "admin" || role === "staff") return true;
   if (role === "accounts") return pathname === "/fees" || pathname.startsWith("/fees/");
   if (role === "driver") {
+    const fuelOk = pathname === "/fuel-log" || pathname.startsWith("/fuel-log/");
     if (driverType === "bus") {
       return (
         pathname === "/attendance" || pathname.startsWith("/attendance/") ||
-        pathname === "/maintenance" || pathname.startsWith("/maintenance/")
+        pathname === "/maintenance" || pathname.startsWith("/maintenance/") ||
+        fuelOk
       );
     }
     if (driverType === "car") {
-      return pathname === "/maintenance" || pathname.startsWith("/maintenance/");
+      return pathname === "/maintenance" || pathname.startsWith("/maintenance/") || fuelOk;
     }
     return false; // driver with no type set — deny until admin assigns
   }

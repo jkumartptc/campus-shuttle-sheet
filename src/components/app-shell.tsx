@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCurrentUser, useUserRoles, useDriverType } from "@/lib/use-role";
 import { CollegeLogo } from "@/components/college-logo";
+import { DriverOdoReminder } from "@/components/driver-odo-reminder";
 
 
 const nav = [
@@ -32,6 +33,7 @@ const nav = [
   { to: "/staff", label: "Staff", icon: ShieldCheck, admin: false },
   { to: "/attendance", label: "Bus Attendance", icon: ScanLine, admin: false },
   { to: "/bus-passes", label: "Bus Pass", icon: IdCard, admin: false },
+  { to: "/fuel-log", label: "Fuel & Odometer", icon: Fuel, admin: false },
   { to: "/maintenance", label: "Maintenance", icon: Wrench, admin: false },
 ] as const;
 
@@ -139,6 +141,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
         )}
 
+        <DriverOdoReminder />
         <main className="flex-1 p-4 md:p-8">{children}</main>
       </div>
     </div>

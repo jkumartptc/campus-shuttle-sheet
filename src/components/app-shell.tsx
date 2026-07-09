@@ -33,6 +33,7 @@ const nav = [
   { to: "/staff", label: "Staff", icon: ShieldCheck, admin: false },
   { to: "/attendance", label: "Bus Attendance", icon: ScanLine, admin: false },
   { to: "/bus-passes", label: "Bus Pass", icon: IdCard, admin: false },
+  { to: "/vehicles", label: "Fleet", icon: Wrench, admin: false },
   { to: "/fuel-log", label: "Fuel & Odometer", icon: Fuel, admin: false },
   { to: "/maintenance", label: "Maintenance", icon: Wrench, admin: false },
 ] as const;
@@ -41,11 +42,13 @@ const nav = [
 const busDriverNav = [
   { to: "/attendance/scan", label: "Scan QR", icon: ScanLine },
   { to: "/attendance", label: "Today's Attendance", icon: LayoutDashboard },
+  { to: "/vehicles", label: "Fleet", icon: Wrench },
   { to: "/fuel-log", label: "Fuel & Odometer", icon: Fuel },
   { to: "/maintenance", label: "Bus Maintenance", icon: Wrench },
 ] as const;
 
 const carDriverNav = [
+  { to: "/vehicles", label: "Fleet", icon: Wrench },
   { to: "/fuel-log", label: "Fuel & Odometer", icon: Fuel },
   { to: "/maintenance", label: "Car Maintenance", icon: Wrench },
 ] as const;

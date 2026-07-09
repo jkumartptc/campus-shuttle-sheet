@@ -187,63 +187,87 @@ export type Database = {
       }
       fuel_logs: {
         Row: {
+          bill_no: string | null
           bus_id: string | null
           created_at: string
+          created_by: string | null
+          credit_purchase: boolean
           driver: string | null
           filled_by: string | null
           filled_on: string
+          fuel_station: string | null
           fuel_type: string | null
           id: string
           indent_number: string | null
+          invoice_url: string | null
           litres: number
+          logged_at: string
           mileage_kmpl: number | null
           odometer: number
           payment_mode: string | null
+          payment_status: string
           rate_per_litre: number
           remarks: string | null
           station: string | null
           total_cost: number
           updated_at: string
+          updated_by: string | null
           vehicle_id: string | null
         }
         Insert: {
+          bill_no?: string | null
           bus_id?: string | null
           created_at?: string
+          created_by?: string | null
+          credit_purchase?: boolean
           driver?: string | null
           filled_by?: string | null
           filled_on?: string
+          fuel_station?: string | null
           fuel_type?: string | null
           id?: string
           indent_number?: string | null
+          invoice_url?: string | null
           litres: number
+          logged_at?: string
           mileage_kmpl?: number | null
           odometer: number
           payment_mode?: string | null
+          payment_status?: string
           rate_per_litre?: number
           remarks?: string | null
           station?: string | null
           total_cost?: number
           updated_at?: string
+          updated_by?: string | null
           vehicle_id?: string | null
         }
         Update: {
+          bill_no?: string | null
           bus_id?: string | null
           created_at?: string
+          created_by?: string | null
+          credit_purchase?: boolean
           driver?: string | null
           filled_by?: string | null
           filled_on?: string
+          fuel_station?: string | null
           fuel_type?: string | null
           id?: string
           indent_number?: string | null
+          invoice_url?: string | null
           litres?: number
+          logged_at?: string
           mileage_kmpl?: number | null
           odometer?: number
           payment_mode?: string | null
+          payment_status?: string
           rate_per_litre?: number
           remarks?: string | null
           station?: string | null
           total_cost?: number
           updated_at?: string
+          updated_by?: string | null
           vehicle_id?: string | null
         }
         Relationships: [
@@ -252,6 +276,13 @@ export type Database = {
             columns: ["bus_id"]
             isOneToOne: false
             referencedRelation: "buses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fuel_logs_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_dashboard"
             referencedColumns: ["id"]
           },
           {
@@ -267,6 +298,7 @@ export type Database = {
         Row: {
           cost: number
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           invoice_no: string | null
@@ -277,12 +309,14 @@ export type Database = {
           service_date: string
           status: string
           updated_at: string
+          updated_by: string | null
           vehicle_id: string
           workshop: string | null
         }
         Insert: {
           cost?: number
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           invoice_no?: string | null
@@ -293,12 +327,14 @@ export type Database = {
           service_date?: string
           status?: string
           updated_at?: string
+          updated_by?: string | null
           vehicle_id: string
           workshop?: string | null
         }
         Update: {
           cost?: number
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           invoice_no?: string | null
@@ -309,12 +345,80 @@ export type Database = {
           service_date?: string
           status?: string
           updated_at?: string
+          updated_by?: string | null
           vehicle_id?: string
           workshop?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "maintenance_records_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_records_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      odometer_logs: {
+        Row: {
+          anomaly: boolean
+          created_at: string
+          created_by: string | null
+          distance_km: number | null
+          driver_id: string | null
+          id: string
+          logged_at: string
+          reading_km: number
+          remarks: string | null
+          updated_at: string
+          updated_by: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          anomaly?: boolean
+          created_at?: string
+          created_by?: string | null
+          distance_km?: number | null
+          driver_id?: string | null
+          id?: string
+          logged_at?: string
+          reading_km: number
+          remarks?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          anomaly?: boolean
+          created_at?: string
+          created_by?: string | null
+          distance_km?: number | null
+          driver_id?: string | null
+          id?: string
+          logged_at?: string
+          reading_km?: number
+          remarks?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "odometer_logs_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "odometer_logs_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "vehicle_master"
@@ -475,6 +579,72 @@ export type Database = {
           },
         ]
       }
+      service_schedules: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          interval_days: number | null
+          interval_km: number | null
+          item: string
+          last_done_km: number | null
+          last_done_on: string | null
+          next_due_km: number | null
+          next_due_on: string | null
+          notes: string | null
+          updated_at: string
+          updated_by: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          interval_days?: number | null
+          interval_km?: number | null
+          item: string
+          last_done_km?: number | null
+          last_done_on?: string | null
+          next_due_km?: number | null
+          next_due_on?: string | null
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          interval_days?: number | null
+          interval_km?: number | null
+          item?: string
+          last_done_km?: number | null
+          last_done_on?: string | null
+          next_due_km?: number | null
+          next_due_on?: string | null
+          notes?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_schedules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_schedules_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stops: {
         Row: {
           created_at: string
@@ -623,6 +793,75 @@ export type Database = {
         }
         Relationships: []
       }
+      tyres: {
+        Row: {
+          brand: string | null
+          cost: number | null
+          created_at: string
+          created_by: string | null
+          fitted_km: number | null
+          fitted_on: string | null
+          id: string
+          notes: string | null
+          position: string | null
+          removed_km: number | null
+          removed_on: string | null
+          serial_no: string | null
+          updated_at: string
+          updated_by: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          brand?: string | null
+          cost?: number | null
+          created_at?: string
+          created_by?: string | null
+          fitted_km?: number | null
+          fitted_on?: string | null
+          id?: string
+          notes?: string | null
+          position?: string | null
+          removed_km?: number | null
+          removed_on?: string | null
+          serial_no?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          brand?: string | null
+          cost?: number | null
+          created_at?: string
+          created_by?: string | null
+          fitted_km?: number | null
+          fitted_on?: string | null
+          id?: string
+          notes?: string | null
+          position?: string | null
+          removed_km?: number | null
+          removed_on?: string | null
+          serial_no?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tyres_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tyres_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -647,54 +886,167 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_documents: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          doc_no: string | null
+          doc_type: string
+          expires_on: string | null
+          file_url: string | null
+          id: string
+          is_current: boolean
+          issued_on: string | null
+          notes: string | null
+          provider: string | null
+          updated_at: string
+          updated_by: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          doc_no?: string | null
+          doc_type: string
+          expires_on?: string | null
+          file_url?: string | null
+          id?: string
+          is_current?: boolean
+          issued_on?: string | null
+          notes?: string | null
+          provider?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          doc_no?: string | null
+          doc_type?: string
+          expires_on?: string | null
+          file_url?: string | null
+          id?: string
+          is_current?: boolean
+          issued_on?: string | null
+          notes?: string | null
+          provider?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_documents_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_dashboard"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicle_documents_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_master"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_master: {
         Row: {
           campus_only: boolean
           category: string
           created_at: string
+          created_by: string | null
+          fuel_type: string | null
           id: string
           last_service_date: string | null
+          make: string | null
+          model: string | null
           name: string
           next_service_date: string | null
           next_service_km: number | null
+          notes: string | null
+          purchase_date: string | null
           reg_no: string | null
           status: string
           updated_at: string
+          updated_by: string | null
           usage: string | null
+          year: number | null
         }
         Insert: {
           campus_only?: boolean
           category: string
           created_at?: string
+          created_by?: string | null
+          fuel_type?: string | null
           id?: string
           last_service_date?: string | null
+          make?: string | null
+          model?: string | null
           name: string
           next_service_date?: string | null
           next_service_km?: number | null
+          notes?: string | null
+          purchase_date?: string | null
           reg_no?: string | null
           status?: string
           updated_at?: string
+          updated_by?: string | null
           usage?: string | null
+          year?: number | null
         }
         Update: {
           campus_only?: boolean
           category?: string
           created_at?: string
+          created_by?: string | null
+          fuel_type?: string | null
           id?: string
           last_service_date?: string | null
+          make?: string | null
+          model?: string | null
           name?: string
           next_service_date?: string | null
           next_service_km?: number | null
+          notes?: string | null
+          purchase_date?: string | null
           reg_no?: string | null
           status?: string
           updated_at?: string
+          updated_by?: string | null
           usage?: string | null
+          year?: number | null
         }
         Relationships: []
       }
     }
     Views: {
-      [_ in never]: never
+      vehicle_dashboard: {
+        Row: {
+          avg_mileage_kmpl: number | null
+          category: string | null
+          current_odo: number | null
+          fc_expiry: string | null
+          id: string | null
+          insurance_expiry: string | null
+          km_since_last_fuel: number | null
+          last_fuel_date: string | null
+          last_fuel_odo: number | null
+          last_odo_at: string | null
+          month_cost: number | null
+          month_litres: number | null
+          name: string | null
+          next_service_due: string | null
+          next_service_item: string | null
+          permit_expiry: string | null
+          puc_expiry: string | null
+          reg_no: string | null
+          status: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       bump_bus_pass_download: {

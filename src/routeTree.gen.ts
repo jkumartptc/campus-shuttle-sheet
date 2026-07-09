@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccessDeniedRouteImport } from './routes/access-denied'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedVehiclesRouteImport } from './routes/_authenticated/vehicles'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
 import { Route as AuthenticatedRoutesRouteImport } from './routes/_authenticated/routes'
@@ -29,6 +30,7 @@ import { Route as AuthenticatedBusPassesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
+import { Route as AuthenticatedVehiclesIndexRouteImport } from './routes/_authenticated/vehicles.index'
 import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedMaintenanceVehicleIdRouteImport } from './routes/_authenticated/maintenance.$vehicleId'
@@ -72,6 +74,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedVehiclesRoute = AuthenticatedVehiclesRouteImport.update({
+  id: '/vehicles',
+  path: '/vehicles',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   id: '/students',
@@ -140,6 +147,12 @@ const Char91DotmcpChar93ListToolsRoute =
     id: '/.mcp/list-tools',
     path: '/.mcp/list-tools',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedVehiclesIndexRoute =
+  AuthenticatedVehiclesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedVehiclesRoute,
   } as any)
 const AuthenticatedMaintenanceIndexRoute =
   AuthenticatedMaintenanceIndexRouteImport.update({
@@ -213,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/routes': typeof AuthenticatedRoutesRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/vehicles': typeof AuthenticatedVehiclesRouteWithChildren
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/attendance/manual': typeof AuthenticatedAttendanceManualRoute
@@ -222,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
+  '/vehicles/': typeof AuthenticatedVehiclesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -251,6 +266,7 @@ export interface FileRoutesByTo {
   '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
   '/maintenance': typeof AuthenticatedMaintenanceIndexRoute
+  '/vehicles': typeof AuthenticatedVehiclesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -274,6 +290,7 @@ export interface FileRoutesById {
   '/_authenticated/routes': typeof AuthenticatedRoutesRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
+  '/_authenticated/vehicles': typeof AuthenticatedVehiclesRouteWithChildren
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/attendance/manual': typeof AuthenticatedAttendanceManualRoute
@@ -283,6 +300,7 @@ export interface FileRoutesById {
   '/_authenticated/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
   '/_authenticated/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
+  '/_authenticated/vehicles/': typeof AuthenticatedVehiclesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -306,6 +324,7 @@ export interface FileRouteTypes {
     | '/routes'
     | '/staff'
     | '/students'
+    | '/vehicles'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/attendance/manual'
@@ -315,6 +334,7 @@ export interface FileRouteTypes {
     | '/maintenance/$vehicleId'
     | '/students/$id'
     | '/maintenance/'
+    | '/vehicles/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -344,6 +364,7 @@ export interface FileRouteTypes {
     | '/maintenance/$vehicleId'
     | '/students/$id'
     | '/maintenance'
+    | '/vehicles'
   id:
     | '__root__'
     | '/'
@@ -366,6 +387,7 @@ export interface FileRouteTypes {
     | '/_authenticated/routes'
     | '/_authenticated/staff'
     | '/_authenticated/students'
+    | '/_authenticated/vehicles'
     | '/.lovable/oauth/consent'
     | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/attendance/manual'
@@ -375,6 +397,7 @@ export interface FileRouteTypes {
     | '/_authenticated/maintenance/$vehicleId'
     | '/_authenticated/students/$id'
     | '/_authenticated/maintenance/'
+    | '/_authenticated/vehicles/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -441,6 +464,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/vehicles': {
+      id: '/_authenticated/vehicles'
+      path: '/vehicles'
+      fullPath: '/vehicles'
+      preLoaderRoute: typeof AuthenticatedVehiclesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/students': {
       id: '/_authenticated/students'
@@ -532,6 +562,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/.mcp/list-tools'
       preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/vehicles/': {
+      id: '/_authenticated/vehicles/'
+      path: '/'
+      fullPath: '/vehicles/'
+      preLoaderRoute: typeof AuthenticatedVehiclesIndexRouteImport
+      parentRoute: typeof AuthenticatedVehiclesRoute
     }
     '/_authenticated/maintenance/': {
       id: '/_authenticated/maintenance/'
@@ -658,6 +695,19 @@ const AuthenticatedStudentsRouteWithChildren =
     AuthenticatedStudentsRouteChildren,
   )
 
+interface AuthenticatedVehiclesRouteChildren {
+  AuthenticatedVehiclesIndexRoute: typeof AuthenticatedVehiclesIndexRoute
+}
+
+const AuthenticatedVehiclesRouteChildren: AuthenticatedVehiclesRouteChildren = {
+  AuthenticatedVehiclesIndexRoute: AuthenticatedVehiclesIndexRoute,
+}
+
+const AuthenticatedVehiclesRouteWithChildren =
+  AuthenticatedVehiclesRoute._addFileChildren(
+    AuthenticatedVehiclesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRouteWithChildren
   AuthenticatedBusPassesRoute: typeof AuthenticatedBusPassesRoute
@@ -670,6 +720,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRoutesRoute: typeof AuthenticatedRoutesRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
+  AuthenticatedVehiclesRoute: typeof AuthenticatedVehiclesRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -684,6 +735,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRoutesRoute: AuthenticatedRoutesRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
+  AuthenticatedVehiclesRoute: AuthenticatedVehiclesRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

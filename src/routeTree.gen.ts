@@ -32,6 +32,7 @@ import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } fr
 import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedVehiclesIndexRouteImport } from './routes/_authenticated/vehicles.index'
 import { Route as AuthenticatedMaintenanceIndexRouteImport } from './routes/_authenticated/maintenance.index'
+import { Route as AuthenticatedVehiclesIdRouteImport } from './routes/_authenticated/vehicles.$id'
 import { Route as AuthenticatedStudentsIdRouteImport } from './routes/_authenticated/students.$id'
 import { Route as AuthenticatedMaintenanceVehicleIdRouteImport } from './routes/_authenticated/maintenance.$vehicleId'
 import { Route as AuthenticatedBusesIdRouteImport } from './routes/_authenticated/buses.$id'
@@ -160,6 +161,11 @@ const AuthenticatedMaintenanceIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedMaintenanceRoute,
   } as any)
+const AuthenticatedVehiclesIdRoute = AuthenticatedVehiclesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedVehiclesRoute,
+} as any)
 const AuthenticatedStudentsIdRoute = AuthenticatedStudentsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -235,6 +241,7 @@ export interface FileRoutesByFullPath {
   '/buses/$id': typeof AuthenticatedBusesIdRoute
   '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/vehicles/$id': typeof AuthenticatedVehiclesIdRoute
   '/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
   '/vehicles/': typeof AuthenticatedVehiclesIndexRoute
 }
@@ -265,6 +272,7 @@ export interface FileRoutesByTo {
   '/buses/$id': typeof AuthenticatedBusesIdRoute
   '/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/vehicles/$id': typeof AuthenticatedVehiclesIdRoute
   '/maintenance': typeof AuthenticatedMaintenanceIndexRoute
   '/vehicles': typeof AuthenticatedVehiclesIndexRoute
 }
@@ -299,6 +307,7 @@ export interface FileRoutesById {
   '/_authenticated/buses/$id': typeof AuthenticatedBusesIdRoute
   '/_authenticated/maintenance/$vehicleId': typeof AuthenticatedMaintenanceVehicleIdRoute
   '/_authenticated/students/$id': typeof AuthenticatedStudentsIdRoute
+  '/_authenticated/vehicles/$id': typeof AuthenticatedVehiclesIdRoute
   '/_authenticated/maintenance/': typeof AuthenticatedMaintenanceIndexRoute
   '/_authenticated/vehicles/': typeof AuthenticatedVehiclesIndexRoute
 }
@@ -333,6 +342,7 @@ export interface FileRouteTypes {
     | '/buses/$id'
     | '/maintenance/$vehicleId'
     | '/students/$id'
+    | '/vehicles/$id'
     | '/maintenance/'
     | '/vehicles/'
   fileRoutesByTo: FileRoutesByTo
@@ -363,6 +373,7 @@ export interface FileRouteTypes {
     | '/buses/$id'
     | '/maintenance/$vehicleId'
     | '/students/$id'
+    | '/vehicles/$id'
     | '/maintenance'
     | '/vehicles'
   id:
@@ -396,6 +407,7 @@ export interface FileRouteTypes {
     | '/_authenticated/buses/$id'
     | '/_authenticated/maintenance/$vehicleId'
     | '/_authenticated/students/$id'
+    | '/_authenticated/vehicles/$id'
     | '/_authenticated/maintenance/'
     | '/_authenticated/vehicles/'
   fileRoutesById: FileRoutesById
@@ -577,6 +589,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMaintenanceIndexRouteImport
       parentRoute: typeof AuthenticatedMaintenanceRoute
     }
+    '/_authenticated/vehicles/$id': {
+      id: '/_authenticated/vehicles/$id'
+      path: '/$id'
+      fullPath: '/vehicles/$id'
+      preLoaderRoute: typeof AuthenticatedVehiclesIdRouteImport
+      parentRoute: typeof AuthenticatedVehiclesRoute
+    }
     '/_authenticated/students/$id': {
       id: '/_authenticated/students/$id'
       path: '/$id'
@@ -696,10 +715,12 @@ const AuthenticatedStudentsRouteWithChildren =
   )
 
 interface AuthenticatedVehiclesRouteChildren {
+  AuthenticatedVehiclesIdRoute: typeof AuthenticatedVehiclesIdRoute
   AuthenticatedVehiclesIndexRoute: typeof AuthenticatedVehiclesIndexRoute
 }
 
 const AuthenticatedVehiclesRouteChildren: AuthenticatedVehiclesRouteChildren = {
+  AuthenticatedVehiclesIdRoute: AuthenticatedVehiclesIdRoute,
   AuthenticatedVehiclesIndexRoute: AuthenticatedVehiclesIndexRoute,
 }
 

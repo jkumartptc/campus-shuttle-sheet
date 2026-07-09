@@ -389,7 +389,7 @@ function FuelTab({ vehicleId, rows, userId, onChanged }:
   };
 
   const updatePayment = async (id: string, status: string, bill_no?: string) => {
-    const patch: Record<string, unknown> = { payment_status: status, updated_by: userId };
+    const patch: { payment_status: string; updated_by?: string; bill_no?: string } = { payment_status: status, updated_by: userId };
     if (bill_no !== undefined) patch.bill_no = bill_no;
     const { error } = await supabase.from("fuel_logs").update(patch).eq("id", id);
     if (error) return toast.error(error.message);

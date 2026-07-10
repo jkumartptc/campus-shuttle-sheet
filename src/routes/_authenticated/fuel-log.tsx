@@ -178,14 +178,7 @@ function FuelLogPage() {
                 <div className="space-y-1"><Label>Rate / litre (₹) *</Label>
                   <Input type="number" step="0.01" value={fForm.rate_per_litre} onChange={(e) => setFForm({ ...fForm, rate_per_litre: e.target.value })} /></div>
                 <div className="space-y-1"><Label>Fuel Type</Label>
-                  <Select value={fForm.fuel_type} onValueChange={(v) => setFForm({ ...fForm, fuel_type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="diesel">Diesel</SelectItem>
-                      <SelectItem value="petrol">Petrol</SelectItem>
-                      <SelectItem value="cng">CNG</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Input value="Diesel" readOnly disabled />
                 </div>
                 <div className="col-span-2 space-y-1"><Label>Remarks</Label>
                   <Textarea rows={2} value={fForm.remarks} onChange={(e) => setFForm({ ...fForm, remarks: e.target.value })} /></div>

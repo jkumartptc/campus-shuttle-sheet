@@ -1,0 +1,2 @@
+ALTER TABLE public.fuel_logs DROP CONSTRAINT IF EXISTS fuel_logs_fuel_type_check;
+ALTER TABLE public.fuel_logs ADD CONSTRAINT fuel_logs_fuel_type_check CHECK (fuel_type = ANY (ARRAY['petrol'::text,'diesel'::text,'cng'::text,'odometer'::text]));

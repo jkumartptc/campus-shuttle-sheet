@@ -11,11 +11,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Search, X, Camera, FileDown, QrCode } from "lucide-react";
+import { Plus, Search, X, Camera, FileDown, QrCode, FileSpreadsheet, FileText } from "lucide-react";
 import QRCode from "qrcode";
 import { generateStudentPdf } from "@/lib/student-pdf";
 import { normalizeImageFile } from "@/lib/image-normalize";
 import { WebcamCapture } from "@/components/webcam-capture";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — Transport Admin" }] }),
@@ -238,6 +241,56 @@ function StudentsPage() {
     });
   };
 
+  const exportExcel = () => {
+    const data = filtered.map((r) => {
+      const bal = Number(r.total_fee) - r.paid;
+      const status = bal <= 0 && r.total_fee > 0 ? "Paid" : r.paid > 0 ? "Partial" : "Pending";
+      return {
+        "Roll No": r.roll_no,
+        Name: r.name,
+        Department: r.department ?? "",
+        Year: r.year ?? "",
+        Phone: r.phone ?? "",
+        "Parent Phone": r.parent_phone ?? "",
+        Route: r.stops?.routes?.name ?? "",
+        Stop: r.stops?.name ?? "",
+        "Academic Year": r.academic_year,
+        "Total Fee": Number(r.total_fee),
+        Paid: r.paid,
+        Balance: bal,
+        Status: status,
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.writeFile(wb, `students_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
+  const exportPdf = () => {
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(14);
+    doc.text("Students — Transport", 14, 14);
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleString()}  •  ${filtered.length} record(s)`, 14, 20);
+    autoTable(doc, {
+      startY: 25,
+      head: [["Roll No", "Name", "Dept", "Year", "Route", "Stop", "Total", "Paid", "Balance", "Status"]],
+      body: filtered.map((r) => {
+        const bal = Number(r.total_fee) - r.paid;
+        const status = bal <= 0 && r.total_fee > 0 ? "Paid" : r.paid > 0 ? "Partial" : "Pending";
+        return [
+          r.roll_no, r.name, r.department ?? "—", r.year ?? "—",
+          r.stops?.routes?.name ?? "—", r.stops?.name ?? "—",
+          Number(r.total_fee).toFixed(2), r.paid.toFixed(2), bal.toFixed(2), status,
+        ];
+      }),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 41, 59] },
+    });
+    doc.save(`students_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <input
@@ -253,7 +306,10 @@ function StudentsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Students</h1>
           <p className="text-sm text-muted-foreground">{rows.length} student{rows.length === 1 ? "" : "s"} using transport</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={exportExcel}><FileSpreadsheet className="mr-2 h-4 w-4" /> Excel</Button>
+          <Button variant="outline" onClick={exportPdf}><FileText className="mr-2 h-4 w-4" /> PDF</Button>
+          <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Add student</Button></DialogTrigger>
           <DialogContent className="max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>New student</DialogTitle></DialogHeader>
@@ -309,6 +365,7 @@ function StudentsPage() {
             <DialogFooter><Button onClick={submit} disabled={uploading}>{uploading ? "Saving…" : "Save"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card>

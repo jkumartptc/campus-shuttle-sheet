@@ -11,11 +11,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
-import { Plus, Search, X, Camera, FileDown, QrCode } from "lucide-react";
+import { Plus, Search, X, Camera, FileDown, QrCode, FileSpreadsheet, FileText } from "lucide-react";
 import QRCode from "qrcode";
 import { generateStudentPdf } from "@/lib/student-pdf";
 import { normalizeImageFile } from "@/lib/image-normalize";
 import { WebcamCapture } from "@/components/webcam-capture";
+import * as XLSX from "xlsx";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export const Route = createFileRoute("/_authenticated/students")({
   head: () => ({ meta: [{ title: "Students — Transport Admin" }] }),

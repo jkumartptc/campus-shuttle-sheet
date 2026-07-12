@@ -365,6 +365,7 @@ function StudentsPage() {
             <DialogFooter><Button onClick={submit} disabled={uploading}>{uploading ? "Saving…" : "Save"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Card>

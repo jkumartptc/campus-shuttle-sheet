@@ -241,6 +241,56 @@ function StudentsPage() {
     });
   };
 
+  const exportExcel = () => {
+    const data = filtered.map((r) => {
+      const bal = Number(r.total_fee) - r.paid;
+      const status = bal <= 0 && r.total_fee > 0 ? "Paid" : r.paid > 0 ? "Partial" : "Pending";
+      return {
+        "Roll No": r.roll_no,
+        Name: r.name,
+        Department: r.department ?? "",
+        Year: r.year ?? "",
+        Phone: r.phone ?? "",
+        "Parent Phone": r.parent_phone ?? "",
+        Route: r.stops?.routes?.name ?? "",
+        Stop: r.stops?.name ?? "",
+        "Academic Year": r.academic_year,
+        "Total Fee": Number(r.total_fee),
+        Paid: r.paid,
+        Balance: bal,
+        Status: status,
+      };
+    });
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.writeFile(wb, `students_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
+  const exportPdf = () => {
+    const doc = new jsPDF({ orientation: "landscape" });
+    doc.setFontSize(14);
+    doc.text("Students — Transport", 14, 14);
+    doc.setFontSize(9);
+    doc.text(`Generated: ${new Date().toLocaleString()}  •  ${filtered.length} record(s)`, 14, 20);
+    autoTable(doc, {
+      startY: 25,
+      head: [["Roll No", "Name", "Dept", "Year", "Route", "Stop", "Total", "Paid", "Balance", "Status"]],
+      body: filtered.map((r) => {
+        const bal = Number(r.total_fee) - r.paid;
+        const status = bal <= 0 && r.total_fee > 0 ? "Paid" : r.paid > 0 ? "Partial" : "Pending";
+        return [
+          r.roll_no, r.name, r.department ?? "—", r.year ?? "—",
+          r.stops?.routes?.name ?? "—", r.stops?.name ?? "—",
+          Number(r.total_fee).toFixed(2), r.paid.toFixed(2), bal.toFixed(2), status,
+        ];
+      }),
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [30, 41, 59] },
+    });
+    doc.save(`students_${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <input
